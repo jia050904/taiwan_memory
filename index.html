@@ -789,6 +789,24 @@
 
     <div class="toast" id="toast">已保存</div>
 
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyChRe5KowJvvGQnu2gaQ391a-TOZul7AP8",
+        authDomain: "taiwan-memory.firebaseapp.com",
+        projectId: "taiwan-memory",
+        storageBucket: "taiwan-memory.firebasestorage.app",
+        messagingSenderId: "550239442515",
+        appId: "1:550239442515:web:452b3d42c4b1e3115858a6"
+      };
+      const cloudinaryConfig = {
+        cloudName: "dhpe1nuvd",
+        uploadPreset: "taiwan_memory"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+    </script>
     <script>
       const playlist = [
         {
@@ -931,11 +949,18 @@
       }
 
       async function loadData() {
-        const response = await fetch("/api/data");
-        const data = await response.json();
-        state.links = data.links || [];
-        state.posts = data.posts || [];
-        render();
+        try {
+          const [linksSnapshot, postsSnapshot] = await Promise.all([
+            db.collection("links").orderBy("savedAt", "desc").get(),
+            db.collection("posts").orderBy("createdAt", "desc").get()
+          ]);
+          state.links = linksSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+          state.posts = postsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+          render();
+        } catch (error) {
+          console.error(error);
+          showToast("Firebase 还没连上，检查 Firestore 是否已启用");
+        }
       }
 
       function setTab(tabName) {
@@ -949,24 +974,34 @@
       async function saveLink(event) {
         event.preventDefault();
         const text = shareText.value.trim();
-        if (!text) {
+        const parsed = parseShare(text);
+        if (!parsed.url) {
           showToast("先粘贴链接");
           return;
         }
 
         setBusy(true);
-        const response = await fetch("/api/links", {
+        const response = await fetch("/api/preview", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text, kind: kind.value })
+          body: JSON.stringify({ url: parsed.url })
         });
         setBusy(false);
 
         if (!response.ok) {
-          showToast("没存上，再试一次");
+          showToast("封面没抓上，再试一次");
           return;
         }
 
+        const preview = await response.json();
+        await db.collection("links").add({
+          kind: kind.value === "dance" ? "dance" : "travel",
+          title: preview.title || parsed.title || "未命名收藏",
+          url: parsed.url,
+          cover: preview.cover || parsed.cover || "",
+          sourceUrl: preview.sourceUrl || parsed.url,
+          savedAt: Date.now()
+        });
         shareText.value = "";
         await loadData();
         setTab(kind.value);
@@ -976,26 +1011,34 @@
       async function savePost(event) {
         event.preventDefault();
         const text = postText.value.trim();
-        const images = await readImages(postImages.files);
-        if (!text && !images.length) {
+        const file = postImages.files[0];
+        if (!text && !file) {
           showToast("写点文字或选张照片");
           return;
         }
 
-        const response = await fetch("/api/posts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ author: author.value, text, images })
-        });
-
-        if (!response.ok) {
-          showToast("发布失败");
+        postForm.querySelector("button[type='submit']").disabled = true;
+        let imageUrl = "";
+        try {
+          imageUrl = file ? await uploadToCloudinary(file) : "";
+        } catch (error) {
+          console.error(error);
+          showToast("图片没传上，再试一次");
+          postForm.querySelector("button[type='submit']").disabled = false;
           return;
         }
+
+        await db.collection("posts").add({
+          author: (author.value || "zhiya & yukiri").trim().slice(0, 30),
+          text: text.slice(0, 2000),
+          images: imageUrl ? [imageUrl] : [],
+          createdAt: Date.now()
+        });
 
         postText.value = "";
         postImages.value = "";
         fileName.textContent = "最多 1 张";
+        postForm.querySelector("button[type='submit']").disabled = false;
         await loadData();
         showToast("已发布");
       }
@@ -1065,7 +1108,7 @@
 
         const button = event.target.closest("[data-delete-post]");
         if (!button) return;
-        await fetch(`/api/posts/${encodeURIComponent(button.dataset.deletePost)}`, { method: "DELETE" });
+        await db.collection("posts").doc(button.dataset.deletePost).delete();
         await loadData();
       }
 
@@ -1099,7 +1142,7 @@
 
       async function deleteActiveLink() {
         if (!activePreviewId) return;
-        await fetch(`/api/links/${encodeURIComponent(activePreviewId)}`, { method: "DELETE" });
+        await db.collection("links").doc(activePreviewId).delete();
         hidePreview();
         await loadData();
       }
@@ -1109,13 +1152,39 @@
         linkForm.querySelector("button").disabled = isBusy;
       }
 
-      function readImages(files) {
-        return Promise.all([...files].slice(0, 1).map((file) => new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.addEventListener("load", () => resolve(reader.result));
-          reader.addEventListener("error", () => resolve(""));
-          reader.readAsDataURL(file);
-        }))).then((items) => items.filter(Boolean));
+      async function uploadToCloudinary(file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", cloudinaryConfig.uploadPreset);
+        formData.append("folder", "taiwan-memory");
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`, {
+          method: "POST",
+          body: formData
+        });
+        const data = await response.json();
+        if (!response.ok || !data.secure_url) {
+          throw new Error(data.error && data.error.message ? data.error.message : "cloudinary upload failed");
+        }
+        return data.secure_url;
+      }
+
+      function parseShare(text) {
+        const urlMatch = text.match(/https?:\/\/[^\s]+/i);
+        const url = urlMatch ? trimUrl(urlMatch[0]) : "";
+        const allUrls = [...text.matchAll(/https?:\/\/[^\s]+/gi)].map((match) => trimUrl(match[0]));
+        const cover = allUrls.find((item) => /\.(png|jpe?g|webp|gif)(\?|#|$)/i.test(item) && item !== url) || "";
+        const beforeUrl = url ? text.slice(0, text.indexOf(urlMatch[0])) : text;
+        const firstLine = beforeUrl.split(/\n/).map((line) => line.trim()).find(Boolean) || "";
+        const title = firstLine
+          .replace(/\s*Hi[，,].*$/i, "")
+          .replace(/\s*来【小红书】.*$/i, "")
+          .replace(/\s*复制此链接.*$/i, "")
+          .trim();
+        return { title, url, cover };
+      }
+
+      function trimUrl(url) {
+        return url.replace(/[，。！？、,.!?]+$/g, "");
       }
 
       function shortTitle(title) {
