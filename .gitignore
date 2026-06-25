@@ -1,0 +1,9 @@
+.DS_Store
+data/
+uploads/
+*.log
+
+# Public deployment note:
+# Do not commit copyrighted music unless you have permission to publish it.
+# Put licensed/self-owned audio files here manually when deploying privately.
+audio/*.mp3
