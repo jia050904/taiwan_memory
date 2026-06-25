@@ -1,0 +1,1043 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>台湾铁杆粉栖息地</title>
+    <style>
+      :root {
+        --ink: #252525;
+        --sub: #76716c;
+        --line: #e4ded7;
+        --paper: #fffdf9;
+        --soft: #f7f1eb;
+        --accent: #d9577a;
+        --accent-2: #2f8a9b;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Microsoft YaHei", sans-serif;
+        background: #fbf8f3;
+      }
+
+      .site {
+        width: min(980px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 56px;
+      }
+
+      header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 24px;
+        align-items: end;
+        padding: 28px 0 22px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        color: var(--accent-2);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(34px, 7vw, 64px);
+        line-height: 1;
+        font-weight: 650;
+        letter-spacing: 0;
+      }
+
+      .lead {
+        max-width: 560px;
+        margin: 14px 0 0;
+        color: var(--sub);
+        font-size: 15px;
+        line-height: 1.8;
+      }
+
+      .stamp {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: flex-end;
+        max-width: 210px;
+      }
+
+      .stamp span {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        padding: 0 10px;
+        border: 1px solid rgba(217, 87, 122, 0.34);
+        border-radius: 999px;
+        background: rgba(255, 253, 249, 0.72);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 650;
+      }
+
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 24px 0 18px;
+      }
+
+      .tab,
+      button,
+      .open {
+        border: 1px solid var(--ink);
+        border-radius: 999px;
+        background: transparent;
+        color: var(--ink);
+        font: inherit;
+        font-size: 14px;
+        font-weight: 650;
+        min-height: 40px;
+        padding: 0 16px;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      .tab.active,
+      button.primary,
+      button:hover,
+      .open:hover {
+        background: var(--ink);
+        color: #fff;
+      }
+
+      .panel {
+        display: none;
+      }
+
+      .panel.active {
+        display: block;
+      }
+
+      .input-area {
+        display: grid;
+        grid-template-columns: 156px 1fr auto;
+        gap: 12px;
+        margin: 0 0 18px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+      }
+
+      select,
+      input,
+      textarea {
+        width: 100%;
+        border: 0;
+        border-right: 1px solid var(--line);
+        background: transparent;
+        color: var(--ink);
+        font: inherit;
+        font-size: 15px;
+        line-height: 1.65;
+        outline: none;
+      }
+
+      select {
+        min-height: 42px;
+      }
+
+      textarea {
+        min-height: 76px;
+        resize: vertical;
+        padding-right: 12px;
+      }
+
+      .status {
+        display: none;
+        margin: -7px 0 16px;
+        color: var(--accent-2);
+        font-size: 13px;
+      }
+
+      .status.show {
+        display: block;
+      }
+
+      .meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        color: var(--sub);
+        font-size: 13px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .card {
+        appearance: none;
+        width: 100%;
+        min-height: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 8px;
+        background: #fff;
+        color: var(--ink);
+        cursor: pointer;
+        overflow: hidden;
+        text-align: left;
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+      }
+
+      .cover {
+        aspect-ratio: 1 / 0.62;
+        display: grid;
+        place-items: center;
+        background:
+          linear-gradient(135deg, rgba(217, 87, 122, 0.12), rgba(47, 138, 155, 0.12)),
+          var(--soft);
+        overflow: hidden;
+      }
+
+      .cover img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .cover-fallback {
+        width: 78%;
+        color: var(--sub);
+        font-size: 12px;
+        line-height: 1.55;
+        text-align: center;
+      }
+
+      .card-body {
+        padding: 9px 10px 10px;
+      }
+
+      .title {
+        display: -webkit-box;
+        min-height: 2.9em;
+        margin: 0;
+        overflow: hidden;
+        color: var(--ink);
+        font-size: 14px;
+        line-height: 1.45;
+        font-weight: 650;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+      }
+
+      .saved {
+        margin-top: 6px;
+        color: var(--sub);
+        font-size: 11px;
+      }
+
+      .empty {
+        grid-column: 1 / -1;
+        padding: 34px 0;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        color: var(--sub);
+        font-size: 15px;
+        line-height: 1.8;
+      }
+
+      .home-block {
+        margin-bottom: 26px;
+      }
+
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .section-head h2 {
+        margin: 0;
+        font-size: 20px;
+        line-height: 1.3;
+        font-weight: 650;
+      }
+
+      .composer {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 14px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+      }
+
+      .composer textarea,
+      .composer input {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 8px 10px;
+        background: #fff;
+      }
+
+      .composer textarea {
+        min-height: 54px;
+      }
+
+      .composer-row {
+        display: grid;
+        grid-template-columns: 160px 1fr auto;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .file-label {
+        min-height: 40px;
+        display: inline-grid;
+        place-items: center;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        cursor: pointer;
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 650;
+      }
+
+      .file-label input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+      }
+
+      .file-name {
+        color: var(--sub);
+        font-size: 13px;
+      }
+
+      .feed {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .post {
+        overflow: hidden;
+        padding: 0;
+        border: 0;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+      }
+
+      .post-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 9px 10px 0;
+        color: var(--sub);
+        font-size: 11px;
+      }
+
+      .post-text {
+        display: -webkit-box;
+        min-height: 2.9em;
+        margin: 7px 10px 0;
+        overflow: hidden;
+        white-space: normal;
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 650;
+        line-height: 1.45;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+      }
+
+      .photos {
+        order: -1;
+        margin-top: 0;
+        aspect-ratio: 1 / 0.62;
+        display: grid;
+        place-items: center;
+        background: var(--soft);
+        overflow: hidden;
+      }
+
+      .photos img {
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+        object-fit: contain;
+        display: block;
+        cursor: zoom-in;
+      }
+
+      .post .actions {
+        margin: 8px 10px 10px;
+      }
+
+      .dialog {
+        position: fixed;
+        inset: 0;
+        display: none;
+        place-items: center;
+        padding: 22px;
+        background: rgba(37, 37, 37, 0.36);
+        z-index: 5;
+      }
+
+      .dialog.show {
+        display: grid;
+      }
+
+      .image-dialog {
+        position: fixed;
+        inset: 0;
+        display: none;
+        place-items: center;
+        padding: 22px;
+        background: rgba(37, 37, 37, 0.72);
+        z-index: 6;
+      }
+
+      .image-dialog.show {
+        display: grid;
+      }
+
+      .image-dialog img {
+        max-width: min(980px, 100%);
+        max-height: calc(100vh - 44px);
+        border-radius: 10px;
+        object-fit: contain;
+        background: #fff;
+      }
+
+      .preview {
+        width: min(620px, 100%);
+        max-height: min(760px, calc(100vh - 44px));
+        overflow: auto;
+        border-radius: 10px;
+        background: var(--paper);
+      }
+
+      .preview-cover {
+        aspect-ratio: 4 / 3;
+        background:
+          linear-gradient(135deg, rgba(217, 87, 122, 0.12), rgba(47, 138, 155, 0.12)),
+          var(--soft);
+      }
+
+      .preview-cover img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .preview-body {
+        padding: 18px;
+      }
+
+      .preview-title {
+        margin: 0;
+        font-size: 22px;
+        line-height: 1.5;
+        font-weight: 650;
+      }
+
+      .preview-url {
+        margin: 12px 0 0;
+        color: var(--sub);
+        font-size: 13px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+      }
+
+      .preview-note {
+        margin: 16px 0 0;
+        padding: 12px 14px;
+        border-radius: 6px;
+        background: var(--soft);
+        color: var(--sub);
+        font-size: 14px;
+        line-height: 1.75;
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-top: 10px;
+      }
+
+      .open {
+        display: inline-grid;
+        place-items: center;
+        background: transparent;
+      }
+
+      .delete {
+        min-width: 42px;
+        border-color: var(--line);
+        background: transparent;
+        color: var(--sub);
+      }
+
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 22px;
+        transform: translateX(-50%);
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: rgba(37, 37, 37, 0.92);
+        color: #fff;
+        font-size: 13px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 180ms ease;
+      }
+
+      .toast.show {
+        opacity: 1;
+      }
+
+      @media (max-width: 800px) {
+        .grid,
+        .feed {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 680px) {
+        .site {
+          width: min(100% - 24px, 980px);
+          padding-top: 18px;
+        }
+
+        header,
+        .input-area,
+        .composer-row {
+          grid-template-columns: 1fr;
+        }
+
+        .stamp {
+          justify-content: flex-start;
+          max-width: none;
+        }
+
+        select,
+        textarea {
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+          padding-bottom: 12px;
+        }
+
+        .grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 10px;
+        }
+
+        .feed {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+
+        .photos {
+          display: block;
+        }
+
+      }
+    </style>
+  </head>
+  <body>
+    <main class="site">
+      <header>
+        <div>
+          <p class="eyebrow">TAIWAN I LOVE U</p>
+          <h1>台湾记忆👯‍♀️❤️</h1>
+          <p class="lead">记录yukiri与zhiya的台湾攻略、低脂小舞蹈，以及旅途的点点滴滴。欢迎大家随意参观～</p>
+        </div>
+        <div class="stamp" aria-label="台湾城市">
+          <span>台北</span>
+          <span>台南</span>
+          <span>花莲</span>
+          <span>高雄</span>
+        </div>
+      </header>
+
+      <nav class="tabs" aria-label="页面切换">
+        <button class="tab active" type="button" data-tab="home">主页</button>
+        <button class="tab" type="button" data-tab="travel">旅游攻略</button>
+        <button class="tab" type="button" data-tab="dance">低脂小舞蹈</button>
+        <button class="tab" type="button" data-tab="feed">动态墙</button>
+      </nav>
+
+      <section class="panel active" id="homePanel">
+        <section class="home-block">
+          <div class="section-head">
+            <h2>最新动态</h2>
+            <button type="button" data-jump="feed">看全部</button>
+          </div>
+          <section class="feed" id="homeFeed" aria-label="最新动态"></section>
+        </section>
+
+        <section class="home-block">
+          <div class="section-head">
+            <h2>最新旅游攻略</h2>
+            <button type="button" data-jump="travel">看全部</button>
+          </div>
+          <section class="grid" id="homeTravelGrid" aria-label="最新旅游攻略"></section>
+        </section>
+      </section>
+
+      <section class="panel" id="travelPanel">
+        <form class="input-area" id="linkForm">
+          <select id="kind">
+            <option value="travel">旅游攻略</option>
+            <option value="dance">低脂小舞蹈</option>
+          </select>
+          <textarea id="shareText" placeholder="粘贴小红书或抖音分享文案"></textarea>
+          <button class="primary" type="submit">保存</button>
+        </form>
+        <div class="status" id="status">正在抓取标题和封面...</div>
+        <div class="meta-row">
+          <span id="travelCount">0 条</span>
+          <span>千挑万选的攻略</span>
+        </div>
+        <section class="grid" id="travelGrid" aria-label="旅游攻略"></section>
+      </section>
+
+      <section class="panel" id="dancePanel">
+        <div class="meta-row">
+          <span id="danceCount">0 条</span>
+          <span>yukiri最爱的低脂舞蹈</span>
+        </div>
+        <section class="grid" id="danceGrid" aria-label="低脂小舞蹈"></section>
+      </section>
+
+      <section class="panel" id="feedPanel">
+        <form class="composer" id="postForm">
+          <input id="author" type="text" maxlength="30" placeholder="发言人" />
+          <textarea id="postText" maxlength="2000" placeholder="想写点儿啥捏...."></textarea>
+          <div class="composer-row">
+            <label class="file-label">
+              <input id="postImages" type="file" accept="image/*" />
+              选照片
+            </label>
+            <span class="file-name" id="fileName">最多 1 张</span>
+            <button class="primary" type="submit">发布</button>
+          </div>
+        </form>
+        <section class="feed" id="feed" aria-label="动态墙"></section>
+      </section>
+    </main>
+
+    <div class="dialog" id="dialog" aria-hidden="true">
+      <article class="preview" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
+        <div class="preview-cover" id="previewCover"></div>
+        <div class="preview-body">
+          <h2 class="preview-title" id="previewTitle"></h2>
+          <p class="preview-url" id="previewUrl"></p>
+          <p class="preview-note">注：这里显示的是保存时抓到的标题和封面。完整正文或视频内容不会搬进来，点按钮会去原平台看。</p>
+          <div class="actions">
+            <a class="open" id="previewOpen" href="#" target="_blank" rel="noreferrer">去原帖</a>
+            <button class="delete" id="previewDelete" type="button">删除收藏</button>
+            <button class="delete" id="previewClose" type="button">关闭</button>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="image-dialog" id="imageDialog" aria-hidden="true">
+      <img id="fullImage" alt="完整图片" />
+    </div>
+
+    <div class="toast" id="toast">已保存</div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyChRe5KowJvvGQnu2gaQ391a-TOZul7AP8",
+        authDomain: "taiwan-memory.firebaseapp.com",
+        projectId: "taiwan-memory",
+        storageBucket: "taiwan-memory.firebasestorage.app",
+        messagingSenderId: "550239442515",
+        appId: "1:550239442515:web:452b3d42c4b1e3115858a6"
+      };
+      const cloudinaryConfig = {
+        cloudName: "dhpe1nuvd",
+        uploadPreset: "taiwan_memory"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+    </script>
+    <script>
+      const state = { links: [], posts: [], activeTab: "home" };
+
+      const tabs = document.querySelectorAll(".tab");
+      const panels = {
+        home: document.querySelector("#homePanel"),
+        travel: document.querySelector("#travelPanel"),
+        dance: document.querySelector("#dancePanel"),
+        feed: document.querySelector("#feedPanel")
+      };
+      const linkForm = document.querySelector("#linkForm");
+      const kind = document.querySelector("#kind");
+      const shareText = document.querySelector("#shareText");
+      const status = document.querySelector("#status");
+      const homeFeed = document.querySelector("#homeFeed");
+      const homeTravelGrid = document.querySelector("#homeTravelGrid");
+      const travelGrid = document.querySelector("#travelGrid");
+      const danceGrid = document.querySelector("#danceGrid");
+      const travelCount = document.querySelector("#travelCount");
+      const danceCount = document.querySelector("#danceCount");
+      const postForm = document.querySelector("#postForm");
+      const author = document.querySelector("#author");
+      const postText = document.querySelector("#postText");
+      const postImages = document.querySelector("#postImages");
+      const fileName = document.querySelector("#fileName");
+      const feed = document.querySelector("#feed");
+      const toast = document.querySelector("#toast");
+      const dialog = document.querySelector("#dialog");
+      const previewCover = document.querySelector("#previewCover");
+      const previewTitle = document.querySelector("#previewTitle");
+      const previewUrl = document.querySelector("#previewUrl");
+      const previewOpen = document.querySelector("#previewOpen");
+      const previewDelete = document.querySelector("#previewDelete");
+      const previewClose = document.querySelector("#previewClose");
+      const imageDialog = document.querySelector("#imageDialog");
+      const fullImage = document.querySelector("#fullImage");
+      let activePreviewId = "";
+
+      init();
+
+      function init() {
+        tabs.forEach((tab) => {
+          tab.addEventListener("click", () => setTab(tab.dataset.tab));
+        });
+        document.querySelectorAll("[data-jump]").forEach((button) => {
+          button.addEventListener("click", () => {
+            if (button.dataset.kindJump) kind.value = button.dataset.kindJump;
+            setTab(button.dataset.jump);
+          });
+        });
+
+        linkForm.addEventListener("submit", saveLink);
+        postForm.addEventListener("submit", savePost);
+        postImages.addEventListener("change", () => {
+          fileName.textContent = postImages.files.length ? postImages.files[0].name : "最多 1 张";
+        });
+
+        travelGrid.addEventListener("click", handleLinkClick);
+        homeTravelGrid.addEventListener("click", handleLinkClick);
+        danceGrid.addEventListener("click", handleLinkClick);
+        homeFeed.addEventListener("click", handlePostClick);
+        feed.addEventListener("click", handlePostClick);
+        imageDialog.addEventListener("click", hideFullImage);
+        dialog.addEventListener("click", (event) => {
+          if (event.target === dialog) hidePreview();
+        });
+        previewClose.addEventListener("click", hidePreview);
+        previewDelete.addEventListener("click", deleteActiveLink);
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") {
+            hidePreview();
+            hideFullImage();
+          }
+        });
+
+        loadData();
+      }
+
+      async function loadData() {
+        try {
+          const [linksSnapshot, postsSnapshot] = await Promise.all([
+            db.collection("links").orderBy("savedAt", "desc").get(),
+            db.collection("posts").orderBy("createdAt", "desc").get()
+          ]);
+          state.links = linksSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+          state.posts = postsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+          render();
+        } catch (error) {
+          console.error(error);
+          showToast("Firebase 还没连上，检查 Firestore 是否已启用");
+        }
+      }
+
+      function setTab(tabName) {
+        state.activeTab = tabName;
+        tabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.tab === tabName));
+        Object.entries(panels).forEach(([name, panel]) => {
+          panel.classList.toggle("active", name === tabName);
+        });
+      }
+
+      async function saveLink(event) {
+        event.preventDefault();
+        const text = shareText.value.trim();
+        const parsed = parseShare(text);
+        if (!parsed.url) {
+          showToast("先粘贴链接");
+          return;
+        }
+
+        setBusy(true);
+        const response = await fetch("/api/preview", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: parsed.url })
+        });
+        setBusy(false);
+
+        if (!response.ok) {
+          showToast("封面没抓上，再试一次");
+          return;
+        }
+
+        const preview = await response.json();
+        await db.collection("links").add({
+          kind: kind.value === "dance" ? "dance" : "travel",
+          title: preview.title || parsed.title || "未命名收藏",
+          url: parsed.url,
+          cover: preview.cover || parsed.cover || "",
+          sourceUrl: preview.sourceUrl || parsed.url,
+          savedAt: Date.now()
+        });
+        shareText.value = "";
+        await loadData();
+        setTab(kind.value);
+        showToast("已保存");
+      }
+
+      async function savePost(event) {
+        event.preventDefault();
+        const text = postText.value.trim();
+        const file = postImages.files[0];
+        if (!text && !file) {
+          showToast("写点文字或选张照片");
+          return;
+        }
+
+        postForm.querySelector("button[type='submit']").disabled = true;
+        let imageUrl = "";
+        try {
+          imageUrl = file ? await uploadToCloudinary(file) : "";
+        } catch (error) {
+          console.error(error);
+          showToast("图片没传上，再试一次");
+          postForm.querySelector("button[type='submit']").disabled = false;
+          return;
+        }
+
+        await db.collection("posts").add({
+          author: (author.value || "zhiya & yukiri").trim().slice(0, 30),
+          text: text.slice(0, 2000),
+          images: imageUrl ? [imageUrl] : [],
+          createdAt: Date.now()
+        });
+
+        postText.value = "";
+        postImages.value = "";
+        fileName.textContent = "最多 1 张";
+        postForm.querySelector("button[type='submit']").disabled = false;
+        await loadData();
+        showToast("已发布");
+      }
+
+      function render() {
+        const travel = state.links.filter((item) => item.kind !== "dance");
+        const dance = state.links.filter((item) => item.kind === "dance");
+        travelCount.textContent = `${travel.length} 条`;
+        danceCount.textContent = `${dance.length} 条`;
+        homeFeed.innerHTML = renderPosts(state.posts.slice(0, 2), "还没有动态。可以先去发一条。");
+        homeTravelGrid.innerHTML = renderLinks(travel.slice(0, 2), "还没有旅游攻略。");
+        travelGrid.innerHTML = renderLinks(travel, "还没有旅游攻略。");
+        danceGrid.innerHTML = renderLinks(dance, "还没有低脂小舞蹈。");
+        feed.innerHTML = renderPosts(state.posts, "还没有动态。可以发文字，也可以发照片。");
+      }
+
+      function renderLinks(items, emptyText) {
+        if (!items.length) return `<div class="empty">${emptyText}</div>`;
+        return items.map((item) => `
+          <button class="card" type="button" data-open="${escapeHtml(item.id)}">
+            <div class="cover">${renderCover(item)}</div>
+            <div class="card-body">
+              <h2 class="title">${escapeHtml(item.title)}</h2>
+              <div class="saved">${formatTime(item.savedAt)}</div>
+            </div>
+          </button>
+        `).join("");
+      }
+
+      function renderPosts(posts, emptyText) {
+        if (!posts.length) return `<div class="empty">${emptyText}</div>`;
+        return posts.map((post) => `
+          <article class="post">
+            ${post.images && post.images.length ? `<div class="photos">${post.images.map((src) => `<img src="${escapeHtml(src)}" data-full-image="${escapeHtml(src)}" alt="" loading="lazy" />`).join("")}</div>` : ""}
+            <div class="post-head">
+              <strong>${escapeHtml(post.author || "zhiya & yukiri")}</strong>
+              <span>${formatTime(post.createdAt)}</span>
+            </div>
+            ${post.text ? `<p class="post-text">${escapeHtml(post.text)}</p>` : ""}
+            <div class="actions">
+              <button class="delete" type="button" data-delete-post="${escapeHtml(post.id)}">删除</button>
+            </div>
+          </article>
+        `).join("");
+      }
+
+      function renderCover(item) {
+        if (item.cover) {
+          return `<img src="${escapeHtml(item.cover)}" alt="${escapeHtml(item.title)}" loading="lazy" />`;
+        }
+        return `<div class="cover-fallback">${item.kind === "dance" ? "低脂小舞蹈" : "旅游攻略"}<br />${escapeHtml(shortTitle(item.title))}</div>`;
+      }
+
+      async function handleLinkClick(event) {
+        const card = event.target.closest("[data-open]");
+        if (!card) return;
+        const item = state.links.find((link) => link.id === card.dataset.open);
+        if (item) showPreview(item);
+      }
+
+      async function handlePostClick(event) {
+        const image = event.target.closest("[data-full-image]");
+        if (image) {
+          showFullImage(image.dataset.fullImage);
+          return;
+        }
+
+        const button = event.target.closest("[data-delete-post]");
+        if (!button) return;
+        await db.collection("posts").doc(button.dataset.deletePost).delete();
+        await loadData();
+      }
+
+      function showFullImage(src) {
+        fullImage.src = src;
+        imageDialog.classList.add("show");
+        imageDialog.setAttribute("aria-hidden", "false");
+      }
+
+      function hideFullImage() {
+        imageDialog.classList.remove("show");
+        imageDialog.setAttribute("aria-hidden", "true");
+        fullImage.removeAttribute("src");
+      }
+
+      function showPreview(item) {
+        previewCover.innerHTML = renderCover(item);
+        previewTitle.textContent = item.title;
+        previewUrl.textContent = item.url;
+        previewOpen.href = item.sourceUrl || item.url;
+        activePreviewId = item.id;
+        dialog.classList.add("show");
+        dialog.setAttribute("aria-hidden", "false");
+      }
+
+      function hidePreview() {
+        activePreviewId = "";
+        dialog.classList.remove("show");
+        dialog.setAttribute("aria-hidden", "true");
+      }
+
+      async function deleteActiveLink() {
+        if (!activePreviewId) return;
+        await db.collection("links").doc(activePreviewId).delete();
+        hidePreview();
+        await loadData();
+      }
+
+      function setBusy(isBusy) {
+        status.classList.toggle("show", isBusy);
+        linkForm.querySelector("button").disabled = isBusy;
+      }
+
+      async function uploadToCloudinary(file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", cloudinaryConfig.uploadPreset);
+        formData.append("folder", "taiwan-memory");
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`, {
+          method: "POST",
+          body: formData
+        });
+        const data = await response.json();
+        if (!response.ok || !data.secure_url) {
+          throw new Error(data.error && data.error.message ? data.error.message : "cloudinary upload failed");
+        }
+        return data.secure_url;
+      }
+
+      function parseShare(text) {
+        const urlMatch = text.match(/https?:\/\/[^\s]+/i);
+        const url = urlMatch ? trimUrl(urlMatch[0]) : "";
+        const allUrls = [...text.matchAll(/https?:\/\/[^\s]+/gi)].map((match) => trimUrl(match[0]));
+        const cover = allUrls.find((item) => /\.(png|jpe?g|webp|gif)(\?|#|$)/i.test(item) && item !== url) || "";
+        const beforeUrl = url ? text.slice(0, text.indexOf(urlMatch[0])) : text;
+        const firstLine = beforeUrl.split(/\n/).map((line) => line.trim()).find(Boolean) || "";
+        const title = firstLine
+          .replace(/\s*Hi[，,].*$/i, "")
+          .replace(/\s*来【小红书】.*$/i, "")
+          .replace(/\s*复制此链接.*$/i, "")
+          .trim();
+        return { title, url, cover };
+      }
+
+      function trimUrl(url) {
+        return url.replace(/[，。！？、,.!?]+$/g, "");
+      }
+
+      function shortTitle(title) {
+        return title.replace(/^[📍\s]+/, "").slice(0, 18);
+      }
+
+      function formatTime(value) {
+        return new Intl.DateTimeFormat("zh-CN", {
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit"
+        }).format(new Date(value));
+      }
+
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add("show");
+        clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(() => toast.classList.remove("show"), 1400);
+      }
+
+      function escapeHtml(value) {
+        return String(value || "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+    </script>
+  </body>
+</html>
