@@ -68,17 +68,24 @@
       }
 
       .stamp {
-        width: 92px;
-        height: 92px;
-        display: grid;
-        place-items: center;
-        border: 1px solid var(--accent);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: flex-end;
+        max-width: 210px;
+      }
+
+      .stamp span {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        padding: 0 10px;
+        border: 1px solid rgba(217, 87, 122, 0.34);
         border-radius: 999px;
+        background: rgba(255, 253, 249, 0.72);
         color: var(--accent);
         font-size: 12px;
-        font-weight: 700;
-        line-height: 1.45;
-        text-align: center;
+        font-weight: 650;
       }
 
       .tabs {
@@ -496,107 +503,6 @@
         color: var(--sub);
       }
 
-      .radio-player {
-        position: fixed;
-        right: 22px;
-        top: 22px;
-        z-index: 4;
-        width: min(260px, calc(100% - 28px));
-        padding: 12px;
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        background: rgba(255, 253, 249, 0.94);
-        box-shadow: 0 10px 28px rgba(37, 37, 37, 0.12);
-        backdrop-filter: blur(8px);
-      }
-
-      .radio-top {
-        display: grid;
-        grid-template-columns: 58px 1fr;
-        gap: 10px;
-        align-items: center;
-      }
-
-      .radio-figure {
-        position: relative;
-        width: 58px;
-        height: 44px;
-        border: 1px solid var(--ink);
-        border-radius: 10px;
-        background: linear-gradient(135deg, #fff, var(--soft));
-      }
-
-      .radio-figure::before {
-        content: "";
-        position: absolute;
-        left: 12px;
-        top: -11px;
-        width: 34px;
-        height: 18px;
-        border-top: 1px solid var(--ink);
-        transform: rotate(-10deg);
-      }
-
-      .radio-figure::after {
-        content: "";
-        position: absolute;
-        right: 8px;
-        top: 12px;
-        width: 18px;
-        height: 18px;
-        border: 1px solid var(--ink);
-        border-radius: 50%;
-        background: var(--paper);
-      }
-
-      .radio-lines {
-        position: absolute;
-        left: 9px;
-        top: 13px;
-        display: grid;
-        gap: 4px;
-      }
-
-      .radio-lines span {
-        display: block;
-        width: 22px;
-        height: 1px;
-        background: var(--ink);
-      }
-
-      .radio-title {
-        min-width: 0;
-      }
-
-      .radio-label {
-        margin: 0 0 3px;
-        color: var(--sub);
-        font-size: 11px;
-        letter-spacing: 0.08em;
-      }
-
-      .song-name {
-        margin: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        font-size: 14px;
-        font-weight: 650;
-      }
-
-      .radio-controls {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 7px;
-        margin-top: 10px;
-      }
-
-      .radio-controls button {
-        min-width: 0;
-        min-height: 34px;
-        padding: 0 8px;
-      }
-
       .toast {
         position: fixed;
         left: 50%;
@@ -636,10 +542,8 @@
         }
 
         .stamp {
-          width: auto;
-          height: auto;
-          justify-self: start;
-          padding: 7px 12px;
+          justify-content: flex-start;
+          max-width: none;
         }
 
         select,
@@ -663,11 +567,6 @@
           display: block;
         }
 
-        .radio-player {
-          right: 12px;
-          top: 12px;
-          width: calc(100% - 24px);
-        }
       }
     </style>
   </head>
@@ -679,7 +578,12 @@
           <h1>台湾记忆👯‍♀️❤️</h1>
           <p class="lead">记录yukiri与zhiya的台湾攻略、低脂小舞蹈，以及旅途的点点滴滴。欢迎大家随意参观～</p>
         </div>
-        <div class="stamp">台北<br />台南<br />花莲<br />高雄</div>
+        <div class="stamp" aria-label="台湾城市">
+          <span>台北</span>
+          <span>台南</span>
+          <span>花莲</span>
+          <span>高雄</span>
+        </div>
       </header>
 
       <nav class="tabs" aria-label="页面切换">
@@ -769,24 +673,6 @@
       <img id="fullImage" alt="完整图片" />
     </div>
 
-    <aside class="radio-player" aria-label="音乐播放器">
-      <div class="radio-top">
-        <div class="radio-figure" aria-hidden="true">
-          <div class="radio-lines"><span></span><span></span><span></span></div>
-        </div>
-        <div class="radio-title">
-          <p class="radio-label">NOW PLAYING</p>
-          <p class="song-name" id="songName">陈绮贞 - 太聪明</p>
-        </div>
-      </div>
-      <div class="radio-controls">
-        <button type="button" id="prevSong" aria-label="上一首">上一首</button>
-        <button type="button" id="toggleMusic" aria-label="播放或暂停">播放</button>
-        <button type="button" id="nextSong" aria-label="下一首">下一首</button>
-      </div>
-      <audio id="musicPlayer" preload="auto"></audio>
-    </aside>
-
     <div class="toast" id="toast">已保存</div>
 
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -808,12 +694,6 @@
       const db = firebase.firestore();
     </script>
     <script>
-      const playlist = [
-        {
-          title: "陈绮贞 - 太聪明",
-          src: "audio/tai-cong-ming.mp3"
-        }
-      ];
       const state = { links: [], posts: [], activeTab: "home" };
 
       const tabs = document.querySelectorAll(".tab");
@@ -849,13 +729,7 @@
       const previewClose = document.querySelector("#previewClose");
       const imageDialog = document.querySelector("#imageDialog");
       const fullImage = document.querySelector("#fullImage");
-      const musicPlayer = document.querySelector("#musicPlayer");
-      const songName = document.querySelector("#songName");
-      const prevSong = document.querySelector("#prevSong");
-      const toggleMusic = document.querySelector("#toggleMusic");
-      const nextSong = document.querySelector("#nextSong");
       let activePreviewId = "";
-      let songIndex = 0;
 
       init();
 
@@ -887,19 +761,6 @@
         });
         previewClose.addEventListener("click", hidePreview);
         previewDelete.addEventListener("click", deleteActiveLink);
-        prevSong.addEventListener("click", () => changeSong(-1, true));
-        nextSong.addEventListener("click", () => changeSong(1, true));
-        toggleMusic.addEventListener("click", togglePlayback);
-        musicPlayer.addEventListener("play", () => {
-          toggleMusic.textContent = "暂停";
-        });
-        musicPlayer.addEventListener("pause", () => {
-          toggleMusic.textContent = "播放";
-        });
-        musicPlayer.addEventListener("ended", () => changeSong(1, true));
-        musicPlayer.addEventListener("error", () => {
-          songName.textContent = `${playlist[songIndex].title}（音频加载失败）`;
-        });
         document.addEventListener("keydown", (event) => {
           if (event.key === "Escape") {
             hidePreview();
@@ -907,45 +768,7 @@
           }
         });
 
-        setupMusic();
         loadData();
-      }
-
-      function setupMusic() {
-        loadSong(songIndex);
-        musicPlayer.play().catch(() => {
-          toggleMusic.textContent = "播放";
-        });
-      }
-
-      function loadSong(index) {
-        const song = playlist[index];
-        songName.textContent = song.title;
-        musicPlayer.src = song.src;
-      }
-
-      function changeSong(step, shouldPlay) {
-        songIndex = (songIndex + step + playlist.length) % playlist.length;
-        loadSong(songIndex);
-        if (shouldPlay) {
-          musicPlayer.play().catch(() => {
-            toggleMusic.textContent = "播放";
-          });
-        }
-      }
-
-      function togglePlayback() {
-        if (musicPlayer.paused) {
-          musicPlayer.play().catch((error) => {
-            if (error && error.name === "NotAllowedError") {
-              showToast("浏览器不允许自动播放，请再点一次播放");
-              return;
-            }
-            showToast("音频没加载成功，请确认服务已重启");
-          });
-        } else {
-          musicPlayer.pause();
-        }
       }
 
       async function loadData() {
