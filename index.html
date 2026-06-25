@@ -129,7 +129,7 @@
 
       .input-area {
         display: grid;
-        grid-template-columns: 132px 120px 120px 1fr auto;
+        grid-template-columns: 120px 120px 1fr auto;
         gap: 12px;
         margin: 0 0 18px;
         padding: 16px;
@@ -579,16 +579,41 @@
         right: 16px;
         bottom: 16px;
         z-index: 4;
-        min-width: 0;
-        min-height: 44px;
-        padding: 0 14px;
+        display: grid;
+        grid-template-columns: auto 1fr auto auto auto;
+        gap: 8px;
+        align-items: center;
+        width: min(360px, calc(100% - 32px));
+        padding: 10px;
         border-color: var(--line);
+        border-radius: 16px;
         background: rgba(255, 253, 249, 0.94);
         box-shadow: 0 10px 26px rgba(37, 37, 37, 0.12);
         backdrop-filter: blur(8px);
       }
 
-      .bgm.playing {
+      .bgm-title {
+        min-width: 0;
+        overflow: hidden;
+        color: var(--sub);
+        font-size: 12px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .bgm-icon {
+        font-size: 14px;
+      }
+
+      .bgm button {
+        min-width: 40px;
+        min-height: 34px;
+        padding: 0 10px;
+        border-color: var(--line);
+        background: transparent;
+      }
+
+      .bgm.playing #bgmToggle {
         border-color: var(--ink);
         background: var(--ink);
         color: #fff;
@@ -685,10 +710,6 @@
 
       <section class="panel" id="travelPanel">
         <form class="input-area" id="linkForm">
-          <select id="kind">
-            <option value="travel">旅游攻略</option>
-            <option value="dance">低脂小舞蹈</option>
-          </select>
           <select id="city">
             <option value="台东">台东</option>
             <option value="高雄">高雄</option>
@@ -721,6 +742,11 @@
       </section>
 
       <section class="panel" id="dancePanel">
+        <form class="input-area" id="danceForm">
+          <textarea id="danceShareText" placeholder="粘贴抖音或小红书舞蹈链接"></textarea>
+          <button class="primary" type="submit">保存</button>
+        </form>
+        <div class="status" id="danceStatus">正在抓取标题和封面...</div>
         <div class="meta-row">
           <span id="danceCount">0 条</span>
           <span>yukiri最爱的低脂舞蹈</span>
@@ -766,8 +792,14 @@
     </div>
 
     <div class="toast" id="toast">已保存</div>
-    <button class="bgm" id="bgmButton" type="button" aria-label="播放或暂停背景音乐">♪ BGM</button>
-    <audio id="bgmAudio" src="tai-cong-ming.mp3" preload="metadata"></audio>
+    <div class="bgm" id="bgmPlayer" aria-label="背景音乐播放器">
+      <span class="bgm-icon" aria-hidden="true">♪</span>
+      <span class="bgm-title" id="bgmTitle">BGM</span>
+      <button id="bgmPrev" type="button" aria-label="上一首">上一首</button>
+      <button id="bgmToggle" type="button" aria-label="播放或暂停背景音乐">播放</button>
+      <button id="bgmNext" type="button" aria-label="下一首">下一首</button>
+      <audio id="bgmAudio" preload="metadata"></audio>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
@@ -788,9 +820,11 @@
       const db = firebase.firestore();
     </script>
     <script>
-      const cityOptions = ["全部", "台东", "高雄", "花莲", "台北", "台南", "其他", "未分类"];
-      const topicOptions = ["全部", "攻略", "美食", "未分类"];
+      const cityOptions = ["全部", "台东", "高雄", "花莲", "台北", "台南", "其他"];
+      const topicOptions = ["全部", "攻略", "美食"];
       const state = { links: [], posts: [], activeTab: "home", city: "全部", topic: "全部" };
+      let playlist = [];
+      let trackIndex = 0;
 
       const tabs = document.querySelectorAll(".tab");
       const panels = {
@@ -800,11 +834,13 @@
         feed: document.querySelector("#feedPanel")
       };
       const linkForm = document.querySelector("#linkForm");
-      const kind = document.querySelector("#kind");
       const city = document.querySelector("#city");
       const topic = document.querySelector("#topic");
       const shareText = document.querySelector("#shareText");
       const status = document.querySelector("#status");
+      const danceForm = document.querySelector("#danceForm");
+      const danceShareText = document.querySelector("#danceShareText");
+      const danceStatus = document.querySelector("#danceStatus");
       const cityFilters = document.querySelector("#cityFilters");
       const topicFilters = document.querySelector("#topicFilters");
       const homeFeed = document.querySelector("#homeFeed");
@@ -829,7 +865,11 @@
       const previewClose = document.querySelector("#previewClose");
       const imageDialog = document.querySelector("#imageDialog");
       const fullImage = document.querySelector("#fullImage");
-      const bgmButton = document.querySelector("#bgmButton");
+      const bgmPlayer = document.querySelector("#bgmPlayer");
+      const bgmTitle = document.querySelector("#bgmTitle");
+      const bgmPrev = document.querySelector("#bgmPrev");
+      const bgmToggle = document.querySelector("#bgmToggle");
+      const bgmNext = document.querySelector("#bgmNext");
       const bgmAudio = document.querySelector("#bgmAudio");
       let activePreviewId = "";
 
@@ -841,13 +881,12 @@
         });
         document.querySelectorAll("[data-jump]").forEach((button) => {
           button.addEventListener("click", () => {
-            if (button.dataset.kindJump) kind.value = button.dataset.kindJump;
             setTab(button.dataset.jump);
           });
         });
 
-        linkForm.addEventListener("submit", saveLink);
-        kind.addEventListener("change", syncLinkFields);
+        linkForm.addEventListener("submit", saveTravelLink);
+        danceForm.addEventListener("submit", saveDanceLink);
         cityFilters.addEventListener("click", handleFilterClick);
         topicFilters.addEventListener("click", handleFilterClick);
         postForm.addEventListener("submit", savePost);
@@ -866,17 +905,20 @@
         });
         previewClose.addEventListener("click", hidePreview);
         previewDelete.addEventListener("click", deleteActiveLink);
-        bgmButton.addEventListener("click", toggleBgm);
+        bgmPrev.addEventListener("click", () => changeTrack(-1, true));
+        bgmToggle.addEventListener("click", toggleBgm);
+        bgmNext.addEventListener("click", () => changeTrack(1, true));
         bgmAudio.addEventListener("play", () => {
-          bgmButton.textContent = "暂停 BGM";
-          bgmButton.classList.add("playing");
+          bgmToggle.textContent = "暂停";
+          bgmPlayer.classList.add("playing");
         });
         bgmAudio.addEventListener("pause", () => {
-          bgmButton.textContent = "♪ BGM";
-          bgmButton.classList.remove("playing");
+          bgmToggle.textContent = "播放";
+          bgmPlayer.classList.remove("playing");
         });
+        bgmAudio.addEventListener("ended", () => changeTrack(1, true));
         bgmAudio.addEventListener("error", () => {
-          showToast("没找到 tai-cong-ming.mp3");
+          showToast("这首歌没加载上");
         });
         document.addEventListener("keydown", (event) => {
           if (event.key === "Escape") {
@@ -885,7 +927,7 @@
           }
         });
 
-        syncLinkFields();
+        loadPlaylist();
         loadData();
       }
 
@@ -912,42 +954,72 @@
         });
       }
 
-      async function saveLink(event) {
+      async function saveTravelLink(event) {
         event.preventDefault();
-        const text = shareText.value.trim();
+        await saveLink({
+          text: shareText.value.trim(),
+          kindValue: "travel",
+          cityValue: city.value,
+          topicValue: topic.value,
+          statusElement: status,
+          formElement: linkForm,
+          afterSave: () => {
+            shareText.value = "";
+            setTab("travel");
+          }
+        });
+      }
+
+      async function saveDanceLink(event) {
+        event.preventDefault();
+        await saveLink({
+          text: danceShareText.value.trim(),
+          kindValue: "dance",
+          cityValue: "",
+          topicValue: "",
+          statusElement: danceStatus,
+          formElement: danceForm,
+          afterSave: () => {
+            danceShareText.value = "";
+            setTab("dance");
+          }
+        });
+      }
+
+      async function saveLink({ text, kindValue, cityValue, topicValue, statusElement, formElement, afterSave }) {
         const parsed = parseShare(text);
         if (!parsed.url) {
           showToast("先粘贴链接");
           return;
         }
 
-        setBusy(true);
+        setBusy(true, statusElement, formElement);
         const response = await fetch("/api/preview", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ url: parsed.url })
         });
-        setBusy(false);
 
         if (!response.ok) {
+          setBusy(false, statusElement, formElement);
           showToast("封面没抓上，再试一次");
           return;
         }
 
         const preview = await response.json();
         await db.collection("links").add({
-          kind: kind.value === "dance" ? "dance" : "travel",
-          city: kind.value === "dance" ? "" : city.value,
-          topic: kind.value === "dance" ? "" : topic.value,
+          kind: kindValue,
+          city: cityValue,
+          topic: topicValue,
           title: preview.title || parsed.title || "未命名收藏",
           url: parsed.url,
           cover: preview.cover || parsed.cover || "",
           sourceUrl: preview.sourceUrl || parsed.url,
           savedAt: Date.now()
         });
-        shareText.value = "";
+        setBusy(false, statusElement, formElement);
+        afterSave();
         await loadData();
-        setTab(kind.value);
         showToast("已保存");
       }
 
@@ -1049,7 +1121,8 @@
 
       function renderFilters(items) {
         cityFilters.innerHTML = `<span class="filter-label">地点</span>${cityOptions.map((option) => renderFilterChip("city", option, countCity(items, option))).join("")}`;
-        topicFilters.innerHTML = `<span class="filter-label">内容</span>${topicOptions.map((option) => renderFilterChip("topic", option, countTopic(items, option))).join("")}`;
+        const scopedItems = filterByCity(items);
+        topicFilters.innerHTML = `<span class="filter-label">内容</span>${topicOptions.map((option) => renderFilterChip("topic", option, countTopic(scopedItems, option))).join("")}`;
       }
 
       function renderFilterChip(type, value, count) {
@@ -1062,15 +1135,24 @@
         const button = event.target.closest("[data-filter-type]");
         if (!button) return;
         state[button.dataset.filterType] = button.dataset.filterValue;
+        if (button.dataset.filterType === "city") {
+          state.topic = "全部";
+        }
         render();
       }
 
       function filterTravel(items) {
-        return items.filter((item) => {
-          const cityMatch = state.city === "全部" || getCity(item) === state.city;
-          const topicMatch = state.topic === "全部" || getTopic(item) === state.topic;
-          return cityMatch && topicMatch;
-        });
+        return filterByTopic(filterByCity(items));
+      }
+
+      function filterByCity(items) {
+        if (state.city === "全部") return items;
+        return items.filter((item) => getCity(item) === state.city);
+      }
+
+      function filterByTopic(items) {
+        if (state.topic === "全部") return items;
+        return items.filter((item) => getTopic(item) === state.topic);
       }
 
       function countCity(items, value) {
@@ -1084,11 +1166,11 @@
       }
 
       function getCity(item) {
-        return item.city || inferCity(item.title) || "未分类";
+        return item.city || inferCity(item.title) || "其他";
       }
 
       function getTopic(item) {
-        return item.topic || inferTopic(item.title) || "未分类";
+        return item.topic || inferTopic(item.title);
       }
 
       function inferCity(title) {
@@ -1096,15 +1178,38 @@
       }
 
       function inferTopic(title) {
-        return /吃|美食|小吃|餐|甜品|咖啡|饭|冰|夜市|店/.test(title || "") ? "美食" : "";
+        return /吃|美食|小吃|餐|甜品|咖啡|饭|冰|夜市|店/.test(title || "") ? "美食" : "攻略";
       }
 
-      function syncLinkFields() {
-        const isDance = kind.value === "dance";
-        city.disabled = isDance;
-        topic.disabled = isDance;
-        city.style.opacity = isDance ? "0.45" : "1";
-        topic.style.opacity = isDance ? "0.45" : "1";
+      async function loadPlaylist() {
+        try {
+          const response = await fetch("/api/audio");
+          playlist = response.ok ? await response.json() : [];
+        } catch {
+          playlist = [];
+        }
+
+        if (!playlist.length) {
+          playlist = [{ title: "tai cong ming", src: "tai-cong-ming.mp3" }];
+        }
+        loadTrack(0);
+      }
+
+      function loadTrack(index) {
+        trackIndex = (index + playlist.length) % playlist.length;
+        const track = playlist[trackIndex];
+        bgmTitle.textContent = track.title;
+        bgmAudio.src = encodeURI(track.src);
+      }
+
+      function changeTrack(step, shouldPlay) {
+        if (!playlist.length) return;
+        loadTrack(trackIndex + step);
+        if (shouldPlay) {
+          bgmAudio.play().catch(() => {
+            showToast("浏览器拦了自动播放，请点播放");
+          });
+        }
       }
 
       function toggleBgm() {
@@ -1172,9 +1277,9 @@
         await loadData();
       }
 
-      function setBusy(isBusy) {
-        status.classList.toggle("show", isBusy);
-        linkForm.querySelector("button").disabled = isBusy;
+      function setBusy(isBusy, statusElement = status, formElement = linkForm) {
+        statusElement.classList.toggle("show", isBusy);
+        formElement.querySelector("button").disabled = isBusy;
       }
 
       async function uploadToCloudinary(file) {

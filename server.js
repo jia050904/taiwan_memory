@@ -22,6 +22,11 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (req.method === "GET" && url.pathname === "/api/audio") {
+      sendJson(res, listAudioFiles());
+      return;
+    }
+
     if (req.method === "POST" && url.pathname === "/api/links") {
       const body = await readBody(req);
       const payload = JSON.parse(body || "{}");
@@ -353,6 +358,31 @@ function ensureStorage() {
   if (!fs.existsSync(storeFile)) {
     fs.writeFileSync(storeFile, JSON.stringify({ links: [], posts: [] }, null, 2));
   }
+}
+
+function listAudioFiles() {
+  const places = [
+    { dir: root, prefix: "" },
+    { dir: path.join(root, "audio"), prefix: "audio/" }
+  ];
+  const seen = new Set();
+  const tracks = [];
+
+  for (const place of places) {
+    if (!fs.existsSync(place.dir)) continue;
+    for (const fileName of fs.readdirSync(place.dir)) {
+      if (!/\.mp3$/i.test(fileName)) continue;
+      const src = `${place.prefix}${fileName}`;
+      if (seen.has(src)) continue;
+      seen.add(src);
+      tracks.push({
+        title: path.basename(fileName, path.extname(fileName)).replace(/[-_]+/g, " "),
+        src
+      });
+    }
+  }
+
+  return tracks;
 }
 
 function createId() {
