@@ -62,6 +62,22 @@ Start Command: npm start
 
 部署好以后，Render 会给你一个网址，把这个网址发给朋友就能用了。
 
+## 以后怎么更新代码
+
+不要再手动一个个 Upload file 了。用 GitHub Desktop 会省很多事：
+
+1. 打开 GitHub Desktop
+2. 左上角 Current Repository 选 `taiwan_memory`
+3. 点 `Repository` -> `Show in Finder`
+4. 把这个项目文件夹里的新文件复制进去覆盖
+5. 回到 GitHub Desktop，左下角 Summary 写一句更新内容
+6. 点 `Commit to main`
+7. 点上方的 `Push origin`
+
+推上 GitHub 后，Render 会自动重新部署。
+
+每次需要更新时，通常只要覆盖我告诉你的那几个文件，不要删 `.mp3`。
+
 ## 本地运行
 
 ```bash
