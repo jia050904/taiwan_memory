@@ -1229,13 +1229,21 @@
       }
 
       function mergePlaylist(primary, fallback) {
-        const seen = new Set();
-        return [...primary, ...fallback].filter((track) => {
-          if (!track || !track.src || seen.has(track.src)) return false;
-          seen.add(track.src);
-          return true;
+        const namedTracks = new Map();
+        fallback.forEach((track) => {
+          if (track && track.src) namedTracks.set(track.src, track);
         });
+
+        const merged = [];
+        const seen = new Set();
+        [...primary, ...fallback].forEach((track) => {
+          if (!track || !track.src || seen.has(track.src)) return;
+          seen.add(track.src);
+          merged.push(namedTracks.get(track.src) || track);
+        });
+        return merged;
       }
+
 
       function loadTrack(index) {
         trackIndex = (index + playlist.length) % playlist.length;
