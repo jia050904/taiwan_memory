@@ -129,7 +129,7 @@
 
       .input-area {
         display: grid;
-        grid-template-columns: 156px 1fr auto;
+        grid-template-columns: 132px 120px 120px 1fr auto;
         gap: 12px;
         margin: 0 0 18px;
         padding: 16px;
@@ -182,6 +182,39 @@
         margin-bottom: 12px;
         color: var(--sub);
         font-size: 13px;
+      }
+
+      .filters {
+        display: grid;
+        gap: 10px;
+        margin: -4px 0 16px;
+      }
+
+      .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .filter-label {
+        min-width: 48px;
+        color: var(--sub);
+        font-size: 13px;
+      }
+
+      .filter-chip {
+        min-height: 32px;
+        padding: 0 12px;
+        border-color: var(--line);
+        color: var(--sub);
+        font-size: 13px;
+      }
+
+      .filter-chip.active {
+        border-color: var(--ink);
+        background: var(--ink);
+        color: #fff;
       }
 
       .grid {
@@ -251,6 +284,25 @@
         margin-top: 6px;
         color: var(--sub);
         font-size: 11px;
+      }
+
+      .badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 7px;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 20px;
+        padding: 0 7px;
+        border-radius: 999px;
+        background: var(--soft);
+        color: var(--sub);
+        font-size: 11px;
+        line-height: 1;
       }
 
       .empty {
@@ -522,6 +574,26 @@
         opacity: 1;
       }
 
+      .bgm {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        z-index: 4;
+        min-width: 0;
+        min-height: 44px;
+        padding: 0 14px;
+        border-color: var(--line);
+        background: rgba(255, 253, 249, 0.94);
+        box-shadow: 0 10px 26px rgba(37, 37, 37, 0.12);
+        backdrop-filter: blur(8px);
+      }
+
+      .bgm.playing {
+        border-color: var(--ink);
+        background: var(--ink);
+        color: #fff;
+      }
+
       @media (max-width: 800px) {
         .grid,
         .feed {
@@ -617,10 +689,30 @@
             <option value="travel">旅游攻略</option>
             <option value="dance">低脂小舞蹈</option>
           </select>
+          <select id="city">
+            <option value="台东">台东</option>
+            <option value="高雄">高雄</option>
+            <option value="花莲">花莲</option>
+            <option value="台北">台北</option>
+            <option value="台南">台南</option>
+            <option value="其他">其他</option>
+          </select>
+          <select id="topic">
+            <option value="攻略">攻略</option>
+            <option value="美食">美食</option>
+          </select>
           <textarea id="shareText" placeholder="粘贴小红书或抖音分享文案"></textarea>
           <button class="primary" type="submit">保存</button>
         </form>
         <div class="status" id="status">正在抓取标题和封面...</div>
+        <div class="filters" aria-label="旅游攻略筛选">
+          <div class="filter-row" id="cityFilters">
+            <span class="filter-label">地点</span>
+          </div>
+          <div class="filter-row" id="topicFilters">
+            <span class="filter-label">内容</span>
+          </div>
+        </div>
         <div class="meta-row">
           <span id="travelCount">0 条</span>
           <span>千挑万选的攻略</span>
@@ -674,6 +766,8 @@
     </div>
 
     <div class="toast" id="toast">已保存</div>
+    <button class="bgm" id="bgmButton" type="button" aria-label="播放或暂停背景音乐">♪ BGM</button>
+    <audio id="bgmAudio" src="tai-cong-ming.mp3" preload="metadata"></audio>
 
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
@@ -694,7 +788,9 @@
       const db = firebase.firestore();
     </script>
     <script>
-      const state = { links: [], posts: [], activeTab: "home" };
+      const cityOptions = ["全部", "台东", "高雄", "花莲", "台北", "台南", "其他", "未分类"];
+      const topicOptions = ["全部", "攻略", "美食", "未分类"];
+      const state = { links: [], posts: [], activeTab: "home", city: "全部", topic: "全部" };
 
       const tabs = document.querySelectorAll(".tab");
       const panels = {
@@ -705,8 +801,12 @@
       };
       const linkForm = document.querySelector("#linkForm");
       const kind = document.querySelector("#kind");
+      const city = document.querySelector("#city");
+      const topic = document.querySelector("#topic");
       const shareText = document.querySelector("#shareText");
       const status = document.querySelector("#status");
+      const cityFilters = document.querySelector("#cityFilters");
+      const topicFilters = document.querySelector("#topicFilters");
       const homeFeed = document.querySelector("#homeFeed");
       const homeTravelGrid = document.querySelector("#homeTravelGrid");
       const travelGrid = document.querySelector("#travelGrid");
@@ -729,6 +829,8 @@
       const previewClose = document.querySelector("#previewClose");
       const imageDialog = document.querySelector("#imageDialog");
       const fullImage = document.querySelector("#fullImage");
+      const bgmButton = document.querySelector("#bgmButton");
+      const bgmAudio = document.querySelector("#bgmAudio");
       let activePreviewId = "";
 
       init();
@@ -745,6 +847,9 @@
         });
 
         linkForm.addEventListener("submit", saveLink);
+        kind.addEventListener("change", syncLinkFields);
+        cityFilters.addEventListener("click", handleFilterClick);
+        topicFilters.addEventListener("click", handleFilterClick);
         postForm.addEventListener("submit", savePost);
         postImages.addEventListener("change", () => {
           fileName.textContent = postImages.files.length ? postImages.files[0].name : "最多 1 张";
@@ -761,6 +866,18 @@
         });
         previewClose.addEventListener("click", hidePreview);
         previewDelete.addEventListener("click", deleteActiveLink);
+        bgmButton.addEventListener("click", toggleBgm);
+        bgmAudio.addEventListener("play", () => {
+          bgmButton.textContent = "暂停 BGM";
+          bgmButton.classList.add("playing");
+        });
+        bgmAudio.addEventListener("pause", () => {
+          bgmButton.textContent = "♪ BGM";
+          bgmButton.classList.remove("playing");
+        });
+        bgmAudio.addEventListener("error", () => {
+          showToast("没找到 tai-cong-ming.mp3");
+        });
         document.addEventListener("keydown", (event) => {
           if (event.key === "Escape") {
             hidePreview();
@@ -768,6 +885,7 @@
           }
         });
 
+        syncLinkFields();
         loadData();
       }
 
@@ -819,6 +937,8 @@
         const preview = await response.json();
         await db.collection("links").add({
           kind: kind.value === "dance" ? "dance" : "travel",
+          city: kind.value === "dance" ? "" : city.value,
+          topic: kind.value === "dance" ? "" : topic.value,
           title: preview.title || parsed.title || "未命名收藏",
           url: parsed.url,
           cover: preview.cover || parsed.cover || "",
@@ -869,11 +989,13 @@
       function render() {
         const travel = state.links.filter((item) => item.kind !== "dance");
         const dance = state.links.filter((item) => item.kind === "dance");
-        travelCount.textContent = `${travel.length} 条`;
+        const visibleTravel = filterTravel(travel);
+        travelCount.textContent = `${visibleTravel.length} / ${travel.length} 条`;
         danceCount.textContent = `${dance.length} 条`;
+        renderFilters(travel);
         homeFeed.innerHTML = renderPosts(state.posts.slice(0, 2), "还没有动态。可以先去发一条。");
         homeTravelGrid.innerHTML = renderLinks(travel.slice(0, 2), "还没有旅游攻略。");
-        travelGrid.innerHTML = renderLinks(travel, "还没有旅游攻略。");
+        travelGrid.innerHTML = renderLinks(visibleTravel, "这个分类里还没有收藏。");
         danceGrid.innerHTML = renderLinks(dance, "还没有低脂小舞蹈。");
         feed.innerHTML = renderPosts(state.posts, "还没有动态。可以发文字，也可以发照片。");
       }
@@ -885,10 +1007,20 @@
             <div class="cover">${renderCover(item)}</div>
             <div class="card-body">
               <h2 class="title">${escapeHtml(item.title)}</h2>
+              ${item.kind === "dance" ? "" : renderBadges(item)}
               <div class="saved">${formatTime(item.savedAt)}</div>
             </div>
           </button>
         `).join("");
+      }
+
+      function renderBadges(item) {
+        return `
+          <div class="badges">
+            <span class="badge">${escapeHtml(getCity(item))}</span>
+            <span class="badge">${escapeHtml(getTopic(item))}</span>
+          </div>
+        `;
       }
 
       function renderPosts(posts, emptyText) {
@@ -913,6 +1045,76 @@
           return `<img src="${escapeHtml(item.cover)}" alt="${escapeHtml(item.title)}" loading="lazy" />`;
         }
         return `<div class="cover-fallback">${item.kind === "dance" ? "低脂小舞蹈" : "旅游攻略"}<br />${escapeHtml(shortTitle(item.title))}</div>`;
+      }
+
+      function renderFilters(items) {
+        cityFilters.innerHTML = `<span class="filter-label">地点</span>${cityOptions.map((option) => renderFilterChip("city", option, countCity(items, option))).join("")}`;
+        topicFilters.innerHTML = `<span class="filter-label">内容</span>${topicOptions.map((option) => renderFilterChip("topic", option, countTopic(items, option))).join("")}`;
+      }
+
+      function renderFilterChip(type, value, count) {
+        const active = state[type] === value ? " active" : "";
+        const label = value === "全部" ? value : `${value} ${count}`;
+        return `<button class="filter-chip${active}" type="button" data-filter-type="${type}" data-filter-value="${escapeHtml(value)}">${escapeHtml(label)}</button>`;
+      }
+
+      function handleFilterClick(event) {
+        const button = event.target.closest("[data-filter-type]");
+        if (!button) return;
+        state[button.dataset.filterType] = button.dataset.filterValue;
+        render();
+      }
+
+      function filterTravel(items) {
+        return items.filter((item) => {
+          const cityMatch = state.city === "全部" || getCity(item) === state.city;
+          const topicMatch = state.topic === "全部" || getTopic(item) === state.topic;
+          return cityMatch && topicMatch;
+        });
+      }
+
+      function countCity(items, value) {
+        if (value === "全部") return items.length;
+        return items.filter((item) => getCity(item) === value).length;
+      }
+
+      function countTopic(items, value) {
+        if (value === "全部") return items.length;
+        return items.filter((item) => getTopic(item) === value).length;
+      }
+
+      function getCity(item) {
+        return item.city || inferCity(item.title) || "未分类";
+      }
+
+      function getTopic(item) {
+        return item.topic || inferTopic(item.title) || "未分类";
+      }
+
+      function inferCity(title) {
+        return ["台东", "高雄", "花莲", "台北", "台南"].find((name) => String(title || "").includes(name)) || "";
+      }
+
+      function inferTopic(title) {
+        return /吃|美食|小吃|餐|甜品|咖啡|饭|冰|夜市|店/.test(title || "") ? "美食" : "";
+      }
+
+      function syncLinkFields() {
+        const isDance = kind.value === "dance";
+        city.disabled = isDance;
+        topic.disabled = isDance;
+        city.style.opacity = isDance ? "0.45" : "1";
+        topic.style.opacity = isDance ? "0.45" : "1";
+      }
+
+      function toggleBgm() {
+        if (bgmAudio.paused) {
+          bgmAudio.play().catch(() => {
+            showToast("浏览器拦了自动播放，请再点一次");
+          });
+        } else {
+          bgmAudio.pause();
+        }
       }
 
       async function handleLinkClick(event) {
