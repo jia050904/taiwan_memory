@@ -35,9 +35,9 @@
 
       header {
         display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 24px;
-        align-items: end;
+        grid-template-columns: minmax(0, 1fr) clamp(112px, 20vw, 170px);
+        gap: 16px;
+        align-items: center;
         padding: 28px 0 22px;
         border-bottom: 1px solid var(--line);
       }
@@ -67,25 +67,17 @@
         line-height: 1.8;
       }
 
-      .stamp {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        justify-content: flex-end;
-        max-width: 210px;
+      .header-art {
+        margin: 0;
+        justify-self: end;
+        width: 100%;
+        max-width: 170px;
       }
 
-      .stamp span {
-        display: inline-flex;
-        align-items: center;
-        min-height: 30px;
-        padding: 0 10px;
-        border: 1px solid rgba(217, 87, 122, 0.34);
-        border-radius: 999px;
-        background: rgba(255, 253, 249, 0.72);
-        color: var(--accent);
-        font-size: 12px;
-        font-weight: 650;
+      .header-art img {
+        width: 100%;
+        height: auto;
+        display: block;
       }
 
       .tabs {
@@ -129,13 +121,22 @@
 
       .input-area {
         display: grid;
-        grid-template-columns: 120px 120px 1fr auto;
-        gap: 12px;
-        margin: 0 0 18px;
-        padding: 16px;
+        gap: 8px;
+        align-items: stretch;
+        margin: 0 0 14px;
+        padding: 10px;
         border: 1px solid var(--line);
         border-radius: 8px;
         background: var(--paper);
+      }
+
+      .travel-form {
+        grid-template-columns: 110px 110px minmax(220px, 1fr) auto;
+      }
+
+      .dance-form {
+        grid-template-columns: minmax(260px, 520px) auto;
+        justify-content: start;
       }
 
       select,
@@ -153,11 +154,11 @@
       }
 
       select {
-        min-height: 42px;
+        min-height: 38px;
       }
 
       textarea {
-        min-height: 76px;
+        min-height: 42px;
         resize: vertical;
         padding-right: 12px;
       }
@@ -198,17 +199,18 @@
       }
 
       .filter-label {
-        min-width: 48px;
+        min-width: 54px;
         color: var(--sub);
-        font-size: 13px;
+        font-size: 16px;
+        font-weight: 650;
       }
 
       .filter-chip {
-        min-height: 32px;
-        padding: 0 12px;
+        min-height: 40px;
+        padding: 0 16px;
         border-color: var(--line);
         color: var(--sub);
-        font-size: 13px;
+        font-size: 16px;
       }
 
       .filter-chip.active {
@@ -632,15 +634,19 @@
           padding-top: 18px;
         }
 
-        header,
         .input-area,
         .composer-row {
           grid-template-columns: 1fr;
         }
 
-        .stamp {
-          justify-content: flex-start;
-          max-width: none;
+        header {
+          grid-template-columns: minmax(0, 1fr) clamp(92px, 30vw, 128px);
+          gap: 8px;
+          align-items: start;
+        }
+
+        .header-art {
+          margin-top: 18px;
         }
 
         select,
@@ -664,6 +670,18 @@
           display: block;
         }
 
+        .bgm {
+          grid-template-columns: auto 1fr auto auto auto;
+          gap: 6px;
+          padding: 8px;
+        }
+
+        .bgm button {
+          min-width: 34px;
+          padding: 0 8px;
+          font-size: 13px;
+        }
+
       }
     </style>
   </head>
@@ -675,12 +693,9 @@
           <h1>台湾记忆👯‍♀️❤️</h1>
           <p class="lead">记录yukiri与zhiya的台湾攻略、低脂小舞蹈，以及旅途的点点滴滴。欢迎大家随意参观～</p>
         </div>
-        <div class="stamp" aria-label="台湾城市">
-          <span>台北</span>
-          <span>台南</span>
-          <span>花莲</span>
-          <span>高雄</span>
-        </div>
+        <figure class="header-art" aria-label="跳舞小伙伴">
+          <img src="header-friends.png" alt="" />
+        </figure>
       </header>
 
       <nav class="tabs" aria-label="页面切换">
@@ -709,7 +724,7 @@
       </section>
 
       <section class="panel" id="travelPanel">
-        <form class="input-area" id="linkForm">
+        <form class="input-area travel-form" id="linkForm">
           <select id="city">
             <option value="台东">台东</option>
             <option value="高雄">高雄</option>
@@ -742,7 +757,7 @@
       </section>
 
       <section class="panel" id="dancePanel">
-        <form class="input-area" id="danceForm">
+        <form class="input-area dance-form" id="danceForm">
           <textarea id="danceShareText" placeholder="粘贴抖音或小红书舞蹈链接"></textarea>
           <button class="primary" type="submit">保存</button>
         </form>
@@ -822,6 +837,10 @@
     <script>
       const cityOptions = ["全部", "台东", "高雄", "花莲", "台北", "台南", "其他"];
       const topicOptions = ["全部", "攻略", "美食"];
+      const fallbackPlaylist = [
+        { title: "tai cong ming", src: "tai-cong-ming.mp3" },
+        { title: "meaning of travel", src: "meaning of travel.mp3" }
+      ];
       const state = { links: [], posts: [], activeTab: "home", city: "全部", topic: "全部" };
       let playlist = [];
       let trackIndex = 0;
@@ -1189,10 +1208,17 @@
           playlist = [];
         }
 
-        if (!playlist.length) {
-          playlist = [{ title: "tai cong ming", src: "tai-cong-ming.mp3" }];
-        }
+        playlist = mergePlaylist(playlist, fallbackPlaylist);
         loadTrack(0);
+      }
+
+      function mergePlaylist(primary, fallback) {
+        const seen = new Set();
+        return [...primary, ...fallback].filter((track) => {
+          if (!track || !track.src || seen.has(track.src)) return false;
+          seen.add(track.src);
+          return true;
+        });
       }
 
       function loadTrack(index) {
