@@ -82,7 +82,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     const filePath = url.pathname === "/" ? "index.html" : decodeURIComponent(url.pathname.slice(1));
-    serveFile(path.join(root, filePath), res);
+    serveFile(path.join(root, filePath), req, res);
   } catch (error) {
     sendJson(res, { error: "server_error", message: error.message }, 500);
   }
@@ -416,13 +416,14 @@ function sendJson(res, data, status = 200) {
   res.end(JSON.stringify(data));
 }
 
-function serveFile(file, res) {
+function serveFile(file, req, res) {
   if (!file.startsWith(root) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
     res.writeHead(404);
     res.end("not found");
     return;
   }
 
+  const stat = fs.statSync(file);
   const ext = path.extname(file).toLowerCase();
   const type = {
     ".html": "text/html; charset=utf-8",
@@ -436,6 +437,39 @@ function serveFile(file, res) {
     ".mp3": "audio/mpeg"
   }[ext] || "application/octet-stream";
 
-  res.writeHead(200, { "content-type": type });
+  if (ext === ".mp3" && req.headers.range) {
+    const range = req.headers.range;
+    const match = range.match(/bytes=(\d*)-(\d*)/);
+    if (!match) {
+      res.writeHead(416, { "content-range": `bytes */${stat.size}` });
+      res.end();
+      return;
+    }
+
+    const start = match[1] ? Number(match[1]) : 0;
+    const end = match[2] ? Number(match[2]) : stat.size - 1;
+    if (start >= stat.size || end >= stat.size || start > end) {
+      res.writeHead(416, { "content-range": `bytes */${stat.size}` });
+      res.end();
+      return;
+    }
+
+    res.writeHead(206, {
+      "content-type": type,
+      "accept-ranges": "bytes",
+      "content-range": `bytes ${start}-${end}/${stat.size}`,
+      "content-length": end - start + 1,
+      "cache-control": "public, max-age=3600"
+    });
+    fs.createReadStream(file, { start, end }).pipe(res);
+    return;
+  }
+
+  res.writeHead(200, {
+    "content-type": type,
+    "content-length": stat.size,
+    "accept-ranges": ext === ".mp3" ? "bytes" : "none",
+    "cache-control": ext === ".html" ? "no-store" : "public, max-age=3600"
+  });
   fs.createReadStream(file).pipe(res);
 }
