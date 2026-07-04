@@ -932,6 +932,9 @@
         travelGrid.addEventListener("click", handleLinkClick);
         homeTravelGrid.addEventListener("click", handleLinkClick);
         danceGrid.addEventListener("click", handleLinkClick);
+        [travelGrid, homeTravelGrid, danceGrid, previewCover].forEach((area) => {
+          area.addEventListener("error", handleCoverError, true);
+        });
         homeFeed.addEventListener("click", handlePostClick);
         feed.addEventListener("click", handlePostClick);
         imageDialog.addEventListener("click", hideFullImage);
@@ -1042,13 +1045,19 @@
         }
 
         const preview = await response.json();
+        const title = preview.title || parsed.title || "未命名收藏";
+        let cover = preview.cover || parsed.cover || "";
+        cover = await cacheCoverToCloudinary(cover, title).catch((error) => {
+          console.warn("cover cache failed", error);
+          return cover;
+        });
         await db.collection("links").add({
           kind: kindValue,
           city: cityValue,
           topic: topicValue,
-          title: preview.title || parsed.title || "未命名收藏",
+          title,
           url: parsed.url,
-          cover: preview.cover || parsed.cover || "",
+          cover,
           sourceUrl: preview.sourceUrl || parsed.url,
           savedAt: Date.now()
         });
@@ -1149,8 +1158,12 @@
 
       function renderCover(item) {
         if (item.cover) {
-          return `<img src="${escapeHtml(item.cover)}" alt="${escapeHtml(item.title)}" loading="lazy" />`;
+          return `<img src="${escapeHtml(item.cover)}" alt="${escapeHtml(item.title)}" data-cover-image loading="lazy" />`;
         }
+        return renderCoverFallback(item);
+      }
+
+      function renderCoverFallback(item) {
         return `<div class="cover-fallback">${item.kind === "dance" ? "低脂小舞蹈" : "旅游攻略"}<br />${escapeHtml(shortTitle(item.title))}</div>`;
       }
 
@@ -1278,6 +1291,18 @@
         if (item) showPreview(item);
       }
 
+      function handleCoverError(event) {
+        const image = event.target.closest("[data-cover-image]");
+        if (!image) return;
+        const card = image.closest("[data-open]");
+        const itemId = card ? card.dataset.open : activePreviewId;
+        const item = state.links.find((link) => link.id === itemId);
+        const cover = image.closest(".cover, .preview-cover");
+        if (cover && item) {
+          cover.innerHTML = renderCoverFallback(item);
+        }
+      }
+
       async function handlePostClick(event) {
         const image = event.target.closest("[data-full-image]");
         if (image) {
@@ -1345,6 +1370,20 @@
           throw new Error(data.error && data.error.message ? data.error.message : "cloudinary upload failed");
         }
         return data.secure_url;
+      }
+
+      async function cacheCoverToCloudinary(coverUrl, title) {
+        if (!coverUrl || /res\.cloudinary\.com/i.test(coverUrl)) return coverUrl || "";
+        const response = await fetch(coverUrl, { cache: "no-store" });
+        if (!response.ok) throw new Error("cover fetch failed");
+
+        const blob = await response.blob();
+        if (!blob.type.startsWith("image/")) throw new Error("cover is not an image");
+
+        const ext = blob.type.includes("png") ? "png" : blob.type.includes("webp") ? "webp" : "jpg";
+        const safeTitle = String(title || "cover").replace(/[^\w\u4e00-\u9fa5-]+/g, "-").slice(0, 40);
+        const file = new File([blob], `${safeTitle || "cover"}.${ext}`, { type: blob.type });
+        return uploadToCloudinary(file);
       }
 
       function parseShare(text) {
