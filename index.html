@@ -855,6 +855,7 @@
         { title: "太聪明--陈绮贞", src: "tai-cong-ming.mp3" },
         { title: "旅行的意义--陈绮贞", src: "meaning of travel.mp3" },
         { title: "恶作剧--王蓝茵", src: "Mischievous Kiss.mp3" },
+        { title: "漫步香港1999", src: "walk_hk.mp3" },
         { title: "后来的我们--五月天", src: "Us and Them.mp3" }
       ];
       const state = { links: [], posts: [], activeTab: "home", city: "全部", topic: "全部" };
@@ -907,6 +908,7 @@
       const bgmNext = document.querySelector("#bgmNext");
       const bgmAudio = document.querySelector("#bgmAudio");
       let activePreviewId = "";
+      const coverRefreshes = new Set();
 
       init();
 
@@ -1167,6 +1169,10 @@
         return `<div class="cover-fallback">${item.kind === "dance" ? "低脂小舞蹈" : "旅游攻略"}<br />${escapeHtml(shortTitle(item.title))}</div>`;
       }
 
+      function renderCoverRepairing(item) {
+        return `<div class="cover-fallback">重新抓封面中<br />${escapeHtml(shortTitle(item.title))}</div>`;
+      }
+
       function renderFilters(items) {
         cityFilters.innerHTML = `<span class="filter-label">地点</span>${cityOptions.map((option) => renderFilterChip("city", option, countCity(items, option))).join("")}`;
         const scopedItems = filterByCity(items);
@@ -1299,7 +1305,45 @@
         const item = state.links.find((link) => link.id === itemId);
         const cover = image.closest(".cover, .preview-cover");
         if (cover && item) {
-          cover.innerHTML = renderCoverFallback(item);
+          cover.innerHTML = renderCoverRepairing(item);
+          refreshCover(item, cover).catch((error) => {
+            console.warn("cover refresh failed", error);
+            cover.innerHTML = renderCoverFallback(item);
+          });
+        }
+      }
+
+      async function refreshCover(item, coverElement) {
+        if (!item || !item.id || !item.url || coverRefreshes.has(item.id)) {
+          if (coverElement) coverElement.innerHTML = renderCoverFallback(item);
+          return;
+        }
+
+        coverRefreshes.add(item.id);
+        const response = await fetch("/api/preview", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: item.url })
+        });
+        if (!response.ok) throw new Error("preview refresh failed");
+
+        const preview = await response.json();
+        let cover = preview.cover || "";
+        if (!cover) throw new Error("preview has no cover");
+
+        cover = await cacheCoverToCloudinary(cover, preview.title || item.title);
+        item.cover = cover;
+        item.sourceUrl = preview.sourceUrl || item.sourceUrl || item.url;
+        if (preview.title) item.title = preview.title;
+
+        await db.collection("links").doc(item.id).update({
+          cover: item.cover,
+          sourceUrl: item.sourceUrl,
+          title: item.title
+        });
+
+        if (coverElement) {
+          coverElement.innerHTML = renderCover(item);
         }
       }
 
