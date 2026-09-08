@@ -1,0 +1,940 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500&display=swap");
+
+/* Final homepage controls: edit sizes here, after the historical scrapbook CSS. */
+:root {
+  --old-chinese: "AR PL KaitiM Big5", "AR PL KaitiM", "DFKai-SB", BiauKai, KaiTi, STKaiti, serif;
+  --old-ui: Tahoma, Verdana, "MS Gothic", Arial, sans-serif;
+  --display-title: "Noto Serif CJK TC", "Noto Serif TC", PMingLiU, MingLiU, serif;
+}
+
+html,
+body {
+  min-height: 100%;
+  background: #7ed6f7 url("assets/site-background.jpg") center top / cover fixed no-repeat !important;
+}
+body {
+  color: #4e4050;
+  font-family: var(--old-chinese);
+  font-size: 12px;
+}
+
+.page-shell {
+  position: relative;
+  display: grid;
+  grid-template-columns: 154px 960px 166px;
+  gap: 12px;
+  width: 1304px;
+  max-width: calc(100% - 10px);
+  margin: 4px auto 18px;
+  align-items: start;
+}
+
+.site {
+  position: relative;
+  width: 960px !important;
+  max-width: 100% !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 5px 9px 8px !important;
+  overflow: visible !important;
+  border: 1px dotted #e978a7 !important;
+  border-image: none !important;
+  border-radius: 0 !important;
+  background: transparent url("assets/site-background.jpg") center top / 100% auto repeat-y !important;
+  box-shadow: none !important;
+}
+.page-star-border { display: none !important; }
+
+body,
+input,
+textarea,
+select,
+button { font-family: var(--old-chinese); }
+.masthead,
+.tabs,
+.box-caption,
+.section-head,
+.eyebrow,
+.scribble,
+.meta-row,
+.tiny-status,
+.bgm,
+.site-footer { font-family: var(--old-ui) !important; }
+.header-copy h1 {
+  font-family: var(--display-title) !important;
+  font-size: 34px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+  text-shadow: 2px 2px 0 #fff !important;
+}
+.header-copy .title-note {
+  font-family: "MS Gothic", Tahoma, Arial, sans-serif !important;
+  font-weight: 400 !important;
+}
+.section-head h2 {
+  font-family: var(--old-chinese) !important;
+  font-weight: 400 !important;
+}
+.box-caption {
+  font-family: var(--old-ui) !important;
+  font-weight: 400 !important;
+}
+
+header {
+  height: 184px !important;
+  overflow: visible !important;
+}
+.header-art {
+  left: 330px !important;
+  right: auto !important;
+  top: -5px !important;
+  width: 500px !important;
+  height: 190px !important;
+  z-index: 7 !important;
+}
+.header-art canvas,
+.header-art > img { width: 100% !important; height: 100% !important; }
+.header-art canvas {
+  display: none !important;
+  z-index: 2;
+}
+.header-art.is-3d canvas {
+  display: block !important;
+}
+.header-art.is-3d > img {
+  display: none !important;
+}
+.sticker-dog { bottom: 50px !important; }
+.header-room-sticker {
+  right: -24px !important;
+  top: -31px !important;
+  width: 205px !important;
+  height: 205px !important;
+  z-index: 8 !important;
+}
+.y2k-stars { left: 325px !important; top: 0 !important; }
+
+.browser-divider {
+  margin-top: -25px !important;
+  margin-right: 0 !important;
+  margin-bottom: 7px !important;
+  margin-left: calc(100% - 190px) !important;
+  transform: translateY(-3px) rotate(1deg) !important;
+}
+.speech-crop {
+  display: block !important;
+  width: 120px !important;
+  height: 122px !important;
+  margin: -6px auto 3px !important;
+  object-fit: contain !important;
+  background: #fff !important;
+}
+
+/* Plain outside text, deliberately closer to old HTML than a card. */
+.outside-notes {
+  position: relative;
+  min-width: 0;
+  padding-top: 91px;
+  color: #173b68;
+  font: 10px/1.38 var(--old-ui);
+  text-shadow: 1px 1px 0 rgba(255,255,255,.85);
+}
+.outside-right { padding-top: 122px; }
+.side-text {
+  position: relative;
+  padding: 4px 2px 6px 5px;
+  border-top: 1px dashed #2e73a7;
+  border-bottom: 1px dotted #fff;
+  background: transparent;
+}
+.side-text h2 {
+  display: inline;
+  margin: 0;
+  padding: 0 2px;
+  color: #c52f78;
+  background: #fff;
+  font: bold 10px/15px "MS Gothic", Tahoma, sans-serif;
+}
+.side-text p { margin: 5px 0 1px; }
+.side-info nav { display: block; margin: 5px 0 7px 3px; }
+.side-info nav a,
+.side-info nav span {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 0 1px;
+  color: #153b6c;
+  text-decoration: none;
+}
+.side-info nav a:nth-child(2),
+.side-info nav span:nth-child(4) { margin-left: 6px; }
+.side-info nav a:hover { color: #df327e; text-decoration: underline; }
+.side-count { padding-top: 4px; border-top: 1px dotted #3577a3; }
+.side-text small { color: #6a4471; font-size: 8px; }
+.current-status { margin-left: 7px; }
+.useless-info { margin: 10px 4px 0 0; transform: translateX(-3px); }
+.useless-info p { overflow-wrap: anywhere; }
+.side-noise {
+  margin: 7px 0 0 9px;
+  color: #68416e;
+  font: 8px/1.45 "MS Gothic", Tahoma, sans-serif;
+}
+.right-noise { margin-left: 17px; }
+
+.side-gif,
+.side-photo {
+  display: block;
+  max-width: 100%;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  image-rendering: pixelated;
+}
+.side-dancer {
+  position: absolute;
+  top: 66px;
+  right: -2px;
+  width: 55px;
+  height: 55px;
+}
+.side-tamago {
+  width: 149px;
+  height: 55px;
+  margin: 9px 0 0 -2px;
+  object-fit: contain;
+}
+.side-penguin {
+  width: 96px;
+  height: 70px;
+  margin: 8px 0 3px 28px;
+  object-fit: contain;
+}
+.side-photo {
+  width: 82px;
+  height: 133px;
+  margin: 11px 0 0 64px;
+  object-fit: cover;
+}
+
+.oldweb-layout,
+.main-column,
+#homePanel,
+.left-rail,
+.right-rail { min-width: 0 !important; }
+.oldweb-layout {
+  height: auto !important;
+  min-height: 0 !important;
+  align-items: start !important;
+}
+.left-rail,
+.main-column,
+.right-rail,
+#homePanel {
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible;
+  align-self: start !important;
+}
+.right-rail {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+}
+.memo-box {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 17px 5px 5px !important;
+}
+.memo-list { min-height: 0 !important; margin-bottom: 3px !important; }
+.rail-sticker-pack {
+  display: flex;
+  position: relative;
+  width: 100%;
+  height: 112px;
+  margin-top: 1px;
+  align-items: flex-start;
+  overflow: visible;
+}
+.rail-sticker-pack .rail-phone,
+.rail-sticker-pack .rail-jelly,
+.rail-sticker-pack .rail-star,
+.rail-sticker-pack .rail-note { position: relative !important; inset: auto !important; flex: 0 0 auto; }
+.rail-sticker-pack .rail-phone { width: 67px !important; height: 109px !important; margin-left: 1px; background-size: 254px 451px; background-position: -5px -3px; transform: rotate(-3deg); }
+.rail-sticker-pack .rail-jelly { width: 64px !important; height: 82px !important; margin: 14px 0 0 -8px; background-size: 274px 487px; background-position: -50px -235px; transform: rotate(4deg); }
+.rail-sticker-pack .rail-star { width: 41px !important; height: 41px !important; margin: 5px 0 0 -8px; transform: rotate(-8deg); }
+.rail-sticker-pack .rail-note { width: 34px !important; height: 45px !important; margin: 58px 0 0 -27px; transform: rotate(8deg); }
+.home-block { min-width: 0 !important; overflow: hidden; }
+.meeting-quote {
+  box-sizing: border-box !important;
+  width: 132px !important;
+  max-width: 100% !important;
+  height: 96px !important;
+}
+.avatar-sticker {
+  display: block !important;
+  width: 92px !important;
+  max-width: 92px !important;
+  height: 111px !important;
+  margin: 5px auto 0 !important;
+  overflow: hidden !important;
+}
+.avatar-sticker img {
+  display: block !important;
+  width: 84px !important;
+  height: 84px !important;
+  object-fit: cover !important;
+}
+
+#homePanel.active {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.04fr) minmax(0, .96fr) !important;
+  gap: 4px !important;
+  align-items: start !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+.home-stack {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-self: start;
+}
+.home-stack-left { gap: 4px; }
+.home-stack-right { gap: 5px; transform: translateY(2px); }
+.home-block,
+.updates-block,
+.travel-block {
+  display: block !important;
+  box-sizing: border-box;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 16px 3px 4px !important;
+  transform: none !important;
+  align-self: start !important;
+}
+.updates-block {
+  border: 1px solid #d47d9f !important;
+  background: rgba(255,244,248,.91) !important;
+}
+.travel-block {
+  border: 1px dashed #77a99a !important;
+  background: rgba(243,250,237,.91) !important;
+}
+.travel-block .section-head { background: #a5d2ad !important; border-color: #78a386 !important; }
+.updates-block .feed,
+.travel-block .grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 3px !important;
+  align-items: start !important;
+  align-content: start !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+.updates-block .post,
+.travel-block .card {
+  align-self: start !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin-bottom: 0 !important;
+}
+.updates-block .post-text,
+.travel-block .title { min-height: 0 !important; }
+.updates-block .post .actions { margin: 2px 3px 3px !important; padding: 0 !important; }
+
+.bgm {
+  box-sizing: border-box !important;
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  grid-template-rows: 137px 20px 19px !important;
+  width: 248px !important;
+  min-width: 248px !important;
+  max-width: 248px !important;
+  height: 181px !important;
+  min-height: 181px !important;
+  max-height: 181px !important;
+  margin: 0 0 0 7px !important;
+  padding: 0 0 3px !important;
+  justify-self: auto !important;
+  align-self: start !important;
+  overflow: hidden !important;
+}
+.bgm-shell { display: block !important; width: 244px !important; height: 137px !important; object-fit: cover !important; }
+.bgm-info { width: 238px !important; height: 20px !important; min-height: 20px !important; margin: 0 3px !important; padding: 0 4px !important; }
+.bgm-title { max-width: 205px !important; line-height: 16px !important; }
+.bgm button { height: 19px !important; min-height: 19px !important; max-height: 19px !important; }
+
+.guestbook-box {
+  box-sizing: border-box !important;
+  position: relative !important;
+  display: block !important;
+  width: 250px !important;
+  min-width: 248px !important;
+  max-width: 248px !important;
+  height: 240px !important;
+  min-height: 226px !important;
+  max-height: 226px !important;
+  margin: 0 0 0 3px !important;
+  justify-self: auto !important;
+  align-self: start !important;
+  overflow: hidden !important;
+}
+.guestbook-shell { display: block !important; width: 246px !important; height: 224px !important; object-fit: fill !important; }
+.guestbook-paper {
+  box-sizing: border-box !important;
+  left: 17px !important;
+  right: 12px !important;
+  top: 62px !important;
+  bottom: 34px !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 3px 5px !important;
+  background: rgba(255,255,255,.72) !important;
+  overflow: hidden !important;
+}
+.guestbook-entries { max-height: 96px !important; }
+.guestbook-form { grid-template-columns: 40px minmax(0,1fr) 31px !important; }
+.guestbook-form input,
+.guestbook-form textarea,
+.guestbook-form button { height: 18px !important; min-height: 18px !important; max-height: 18px !important; }
+
+.random-memory-box,
+.mini-archive-box {
+  width: calc(100% - 8px);
+  height: auto;
+  min-height: 0;
+  padding: 3px 5px 4px;
+  color: #5d4c59;
+  font: 9px/1.35 PMingLiU, MingLiU, SimSun, serif;
+}
+.random-memory-box {
+  margin-left: 2px;
+  border: 1px dotted #da85a7;
+  background: rgba(255,251,204,.9);
+}
+.mini-archive-box {
+  margin-left: 7px;
+  border-top: 1px dashed #71a9a0;
+  border-bottom: 1px dotted #d87fa4;
+  background: rgba(255,255,255,.68);
+}
+.random-memory-box b,
+.mini-archive-box b { display: block; color: #c34e80; font: bold 8px/12px Tahoma, sans-serif; }
+.random-memory-box span,
+.mini-archive-box a,
+.mini-archive-box span { display: block; margin-top: 1px; }
+.mini-archive-box a { color: #426b91; text-decoration: underline; }
+.random-memory-box small,
+.mini-archive-box small { display: block; margin-top: 2px; color: #8b7180; font: 7px/10px Tahoma, sans-serif; }
+
+.site-footer {
+  width: auto !important;
+  min-height: 0 !important;
+  margin: 9px auto 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: #745d69 !important;
+  box-shadow: none !important;
+  font: 8px/14px Tahoma, Arial, sans-serif !important;
+  text-align: center !important;
+}
+
+.site-alien {
+  position: absolute;
+  right: -150px;
+  bottom: 190px;
+  width: 190px;
+  height: auto;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@media (max-width: 1300px) {
+  .page-shell { grid-template-columns: 132px minmax(0, 960px) 142px; gap: 6px; width: 1240px; }
+  .side-tamago { width: 130px; height: 48px; }
+  .side-photo { margin-left: 48px; }
+}
+@media (max-width: 1120px) {
+  .page-shell { display: block; width: 960px; max-width: calc(100% - 6px); }
+  .outside-notes { display: none; }
+}
+@media (max-width: 760px) {
+  html, body { background-attachment: scroll !important; }
+  .site { width: 100% !important; padding: 4px 6px 8px !important; }
+  .header-art { left: 31% !important; top: 0 !important; width: 58% !important; height: 168px !important; }
+  .header-room-sticker { right: -34px !important; top: -18px !important; width: 165px !important; height: 170px !important; }
+  .browser-divider { margin-left: calc(100% - 150px) !important; }
+  .speech-crop { width: 92px !important; height: 94px !important; }
+  #homePanel.active { grid-template-columns: minmax(0,1fr) minmax(0,1fr) !important; gap: 3px !important; }
+  .bgm { width: 218px !important; min-width: 218px !important; max-width: 218px !important; grid-template-rows: 120px 19px 19px !important; height: 168px !important; min-height: 168px !important; max-height: 168px !important; }
+  .bgm-shell { width: 214px !important; height: 120px !important; }
+  .bgm-info { width: 208px !important; height: 19px !important; }
+  .guestbook-box { width: 218px !important; min-width: 218px !important; max-width: 218px !important; height: 198px !important; min-height: 198px !important; max-height: 198px !important; }
+  .guestbook-shell { width: 216px !important; height: 196px !important; }
+  .guestbook-paper { left: 15px !important; right: 11px !important; top: 54px !important; bottom: 29px !important; }
+}
+@media (max-width: 520px) {
+  #homePanel.active { grid-template-columns: 1fr !important; }
+  .home-stack-left, .home-stack-right { gap: 4px; transform: none; }
+  .bgm,
+  .guestbook-box { grid-column: 1 !important; }
+  .bgm { width: 210px !important; min-width: 210px !important; max-width: 210px !important; grid-template-rows: 116px 19px 19px !important; height: 164px !important; min-height: 164px !important; max-height: 164px !important; }
+  .bgm-shell { width: 206px !important; height: 116px !important; }
+  .guestbook-box { width: 210px !important; min-width: 210px !important; max-width: 210px !important; height: 191px !important; min-height: 191px !important; max-height: 191px !important; }
+  .guestbook-shell { width: 208px !important; height: 189px !important; }
+  .guestbook-paper { left: 14px !important; right: 10px !important; top: 52px !important; bottom: 28px !important; }
+}
+
+/* =========================================
+   DENSE HOMEPAGE — 手搓老网页拼贴布局
+   ========================================= */
+
+#homePanel.active {
+  display: grid !important;
+
+  /* 左大块 / 左小块 / 右大块 */
+  grid-template-columns:
+    minmax(0, 1.2fr)
+    minmax(0, .6fr)
+    minmax(0, 1.3fr) !important;
+
+  grid-template-rows: auto auto auto !important;
+
+  gap: 3px !important;
+  align-items: start !important;
+
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+
+/* 把原来的左右 stack 在“布局层”拆掉 */
+#homePanel.active > .home-stack {
+  display: contents !important;
+}
+
+
+/* =========================================
+   第一排
+   最新动态 | 最新旅游攻略
+   ========================================= */
+
+.updates-block {
+  grid-column: 1 / 3 !important;
+  grid-row: 1 !important;
+
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+
+  margin: 0 !important;
+}
+
+
+.travel-block {
+  grid-column: 3 !important;
+  grid-row: 1 !important;
+
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+
+  margin: 0 !important;
+}
+
+
+/* =========================================
+   第二排左边
+   MUSIC | RANDOM MEMORY
+   ========================================= */
+
+#bgmPlayer {
+  grid-column: 1 / 3 !important;
+  grid-row: 2 !important;
+
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+}
+
+
+/* 播放器内部跟着容器缩放 */
+#bgmPlayer .bgm-shell {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+
+/* Random Memory 变成窄窄的小栏 */
+.random-memory-box {
+  grid-column: 1 / 3 !important;
+  grid-row: 3 !important;
+
+  width: 100% !important;
+
+  margin: 0 !important;
+}
+
+
+/* =========================================
+   第二排右边
+   GUEST BOOK
+   ========================================= */
+
+.guestbook-box {
+  grid-column: 3 !important;
+  grid-row: 2 !important;
+
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  align-self: start !important;
+}
+
+
+/* Word 外壳跟随右栏宽度 */
+.guestbook-shell {
+  width: 100% !important;
+}
+
+
+/* =========================================
+   第三排右边
+   mini archive
+   ========================================= */
+
+.mini-archive-box {
+  grid-column: 3 !important;
+  grid-row: 3 !important;
+
+  box-sizing: border-box !important;
+
+  width: 100% !important;
+  min-width: 0 !important;
+
+  margin: 0 !important;
+  padding: 4px 5px !important;
+}
+
+
+/* =========================================
+   去掉以前左右 stack 造成的位移
+   ========================================= */
+
+.home-stack-left,
+.home-stack-right {
+  gap: 0 !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+
+/* =========================================
+   两个顶部模块彻底取消假高度
+   ========================================= */
+
+.home-block,
+.updates-block,
+.travel-block {
+  box-sizing: border-box !important;
+
+  height: auto !important;
+  min-height: 0 !important;
+
+  margin: 0 !important;
+
+  align-self: start !important;
+}
+
+
+/* 动态 / 攻略内容本身也不要撑高 */
+.updates-block .feed,
+.travel-block .grid {
+  height: auto !important;
+  min-height: 0 !important;
+
+  margin: 0 !important;
+
+  align-content: start !important;
+  align-items: start !important;
+}
+
+
+/* =========================================
+   整体压紧一点
+   ========================================= */
+
+.updates-block,
+.travel-block {
+  padding-bottom: 3px !important;
+}
+
+.random-memory-box span {
+  margin-top: 2px !important;
+}
+
+.mini-archive-box span,
+.mini-archive-box a {
+  margin-top: 1px !important;
+}
+
+
+/* =========================================
+   手机端恢复成单列，防止挤炸
+   ========================================= */
+
+@media (max-width: 520px) {
+
+  #homePanel.active {
+    grid-template-columns: 1fr !important;
+    gap: 3px !important;
+  }
+
+  .updates-block,
+  .travel-block,
+  #bgmPlayer,
+  .random-memory-box,
+  .guestbook-box,
+  .mini-archive-box {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+}
+/* =========================================
+   LEFT PROFILE COLUMN — 全部同宽 + 高度自适应
+   ========================================= */
+
+.left-rail {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+
+/* PROFILE：内容多少，框就长多少 */
+.welcome-box {
+  box-sizing: border-box !important;
+
+  width: 100% !important;
+  max-width: none !important;
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+
+  margin: 0 !important;
+  padding: 18px 6px 7px !important;
+
+  overflow: visible !important;
+}
+
+
+/* PROFILE 里面的文字不要被奇怪高度限制 */
+.welcome-box p {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+
+  margin: 3px 0 !important;
+
+  overflow: visible !important;
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================
+   PROFILE 下面三张图全部跟 PROFILE 左右对齐
+   ========================================= */
+
+.speech-crop,
+.meeting-quote,
+.avatar-sticker {
+  box-sizing: border-box !important;
+
+  display: block !important;
+
+  width: 100% !important;
+  max-width: 100% !important;
+
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+
+/* 미쳤다 positive */
+.speech-crop {
+  height: auto !important;
+  margin-top: 3px !important;
+
+  object-fit: contain !important;
+}
+
+
+/* 中间那张文字风景图 */
+.meeting-quote {
+  height: auto !important;
+
+  margin-top: 4px !important;
+  margin-bottom: 4px !important;
+
+  object-fit: contain !important;
+}
+
+
+/* 最下面头像框 */
+.avatar-sticker {
+  height: auto !important;
+  max-height: none !important;
+
+  margin-top: 4px !important;
+
+  padding: 3px !important;
+  overflow: visible !important;
+}
+
+
+/* 头像图片跟头像框宽度走 */
+.avatar-sticker img {
+  display: block !important;
+
+  width: 100% !important;
+  height: auto !important;
+
+  aspect-ratio: 1 / 1;
+  object-fit: cover !important;
+}
+
+
+/* =========================================
+   最新动态 / 最新旅游攻略 标题放大
+   ========================================= */
+
+.section-head {
+  min-height: 19px !important;
+  padding: 1px 4px !important;
+}
+
+.section-head h2 {
+  font-size: 12px !important;
+  line-height: 16px !important;
+  font-weight: 400 !important;
+}
+
+.section-head button {
+  font-size: 8px !important;
+  line-height: 14px !important;
+}
+
+
+/* 标题栏变高以后，下面内容也往下让一点 */
+.home-block,
+.updates-block,
+.travel-block {
+  padding-top: 22px !important;
+}
+/* =========================
+   FIX PROFILE HEIGHT
+   ========================= */
+
+.welcome-box {
+  flex: 0 0 auto !important;   /* 关键：取消固定116px高度 */
+  width: 100% !important;
+
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+
+  overflow: visible !important;
+}
+
+.welcome-box p {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+
+  white-space: normal !important;
+  overflow: visible !important;
+}
+
+
+/* 左栏不要裁内容 */
+.left-rail {
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+.memo-meme {
+  display: block !important;
+
+  width: 100% !important;
+  height: auto !important;
+
+  margin: 3px 0 0 !important;
+
+  object-fit: contain !important;
+}
+/* =========================================
+   DENSE BUT NOT CRAMPED
+   ========================================= */
+
+#homePanel.active {
+  column-gap: 7px !important;
+  row-gap: 7px !important;
+}
+
+/* 左右栏内部的小模块也稍微分开 */
+.left-rail,
+.right-rail {
+  gap: 6px !important;
+}
+
+/* 最新动态 / 攻略 和下面模块之间 */
+.updates-block,
+.travel-block {
+  margin-bottom: 1px !important;
+}
+
+/* 播放器、留言板不要直接贴边 */
+#bgmPlayer,
+.guestbook-box {
+  margin-top: 1px !important;
+}
+
+/* RANDOM / mini archive 再留一点呼吸 */
+.random-memory-box,
+.mini-archive-box {
+  margin-top: 1px !important;
+}
+
+/* memo 和下面表情包 */
+.memo-meme {
+  margin-top: 6px !important;
+}
+
+/* 左栏图片之间 */
+.meeting-quote,
+.avatar-sticker {
+  margin-top: 6px !important;
+}

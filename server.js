@@ -469,7 +469,7 @@ function serveFile(file, req, res) {
     "content-type": type,
     "content-length": stat.size,
     "accept-ranges": ext === ".mp3" ? "bytes" : "none",
-    "cache-control": ext === ".html" ? "no-store" : "public, max-age=3600"
+    "cache-control": [".html", ".css", ".js"].includes(ext) ? "no-store" : "public, max-age=3600"
   });
   fs.createReadStream(file).pipe(res);
 }
