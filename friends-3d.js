@@ -82,7 +82,7 @@ try {
 
   pair.forEach((f,i)=>{
     f.root.position.x = i ? 1.05 : -1.05;
-    f.root.scale.set(1.7,3.0,2.0);
+    f.root.scale.set(1.6,2.2,2.0);
     pairRoot.add(f.root);
   });
 
@@ -102,8 +102,8 @@ try {
     const heightDistance=characterSize.y/(2*halfFov*.9);
     const widthDistance=characterSize.x/(2*halfFov*camera.aspect*.9);
     const distance=Math.max(heightDistance,widthDistance);
-    camera.position.set(characterCenter.x-pairXOffset,characterCenter.y,characterCenter.z+distance);
-    camera.lookAt(characterCenter.x-pairXOffset,characterCenter.y,characterCenter.z);
+    camera.position.set(characterCenter.x,characterCenter.y,characterCenter.z+distance);
+    camera.lookAt(characterCenter.x,characterCenter.y,characterCenter.z);
     camera.updateProjectionMatrix();
   }
   

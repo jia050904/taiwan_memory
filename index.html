@@ -697,7 +697,7 @@
     </style>
     <link rel="stylesheet" href="scrapbook.css?v=20260908-2" />
     <link rel="stylesheet" href="homepage-final.css?v=20260908-6" />
-    <script type="module" src="friends-3d.js?v=20260908-2"></script>
+    <script type="module" src="friends-3d.js?v=20260909-3"></script>
   </head>
   <body>
     <div class="page-shell">
@@ -1120,21 +1120,20 @@
         loadData();
       }
 
-      function initMemo() {
-        let items;
+      async function initMemo() {
+        let legacyItems;
         try {
-          items = JSON.parse(localStorage.getItem(memoStorageKey) || "null");
+          legacyItems = JSON.parse(localStorage.getItem(memoStorageKey) || "null");
         } catch {
-          items = null;
-        }
-        if (!Array.isArray(items)) {
-          items = ["最近在整理照片...", "想吃台南甜品", "下次去哪还没定"];
+          legacyItems = null;
         }
 
-        const save = () => localStorage.setItem(memoStorageKey, JSON.stringify(items));
-        const draw = () => {
+        const memos = db.collection("memos");
+        const defaults = ["最近在整理照片...", "想吃台南甜品", "下次去哪还没定"];
+        const draw = (snapshot) => {
           memoList.replaceChildren();
-          items.forEach((text, index) => {
+          snapshot.forEach((doc) => {
+            const text = String(doc.data().text || "");
             const item = document.createElement("li");
             const label = document.createElement("span");
             const remove = document.createElement("button");
@@ -1143,26 +1142,51 @@
             remove.textContent = "×";
             remove.title = "删掉这条";
             remove.setAttribute("aria-label", "删除 " + text);
-            remove.addEventListener("click", () => {
-              items.splice(index, 1);
-              save();
-              draw();
+            remove.addEventListener("click", async () => {
+              try {
+                await memos.doc(doc.id).delete();
+              } catch (error) {
+                console.error(error);
+                showToast("memo 没删掉，再试一次");
+              }
             });
             item.append(label, remove);
             memoList.append(item);
           });
         };
 
-        memoForm.addEventListener("submit", (event) => {
+        memoForm.addEventListener("submit", async (event) => {
           event.preventDefault();
           const text = memoInput.value.trim();
           if (!text) return;
-          items.push(text);
-          memoInput.value = "";
-          save();
-          draw();
+          try {
+            await memos.add({ text, createdAt: Date.now() });
+            memoInput.value = "";
+          } catch (error) {
+            console.error(error);
+            showToast("memo 没存进数据库，再试一次");
+          }
         });
-        draw();
+
+        try {
+          const existing = await memos.limit(1).get();
+          const seedItems = Array.isArray(legacyItems) && legacyItems.length ? legacyItems : defaults;
+          if (existing.empty) {
+            const batch = db.batch();
+            seedItems.forEach((text, index) => {
+              batch.set(memos.doc(`initial-${index + 1}`), { text, createdAt: Date.now() + index });
+            });
+            await batch.commit();
+          }
+          localStorage.removeItem(memoStorageKey);
+        } catch (error) {
+          console.error("memo migration failed", error);
+        }
+
+        memos.orderBy("createdAt", "asc").limit(30).onSnapshot(draw, (error) => {
+          console.error(error);
+          memoList.textContent = "memo database offline...";
+        });
       }
 
       async function saveGuestbook(event) {
@@ -1290,7 +1314,7 @@
         let cover = preview.cover || parsed.cover || "";
         cover = await cacheCoverToCloudinary(cover, title).catch((error) => {
           console.warn("cover cache failed", error);
-          return cover;
+          return "";
         });
         await db.collection("links").add({
           kind: kindValue,
@@ -1613,7 +1637,7 @@
         previewCover.innerHTML = renderCover(item);
         previewTitle.textContent = item.title;
         previewUrl.textContent = item.url;
-        previewOpen.href = item.sourceUrl || item.url;
+        previewOpen.href = originalPostUrl(item);
         activePreviewId = item.id;
         dialog.classList.add("show");
         dialog.setAttribute("aria-hidden", "false");
@@ -1680,6 +1704,26 @@
           .replace(/\s*复制此链接.*$/i, "")
           .trim();
         return { title, url, cover };
+      }
+
+      function canonicalPostUrl(value) {
+        let decoded = String(value || "");
+        for (let index = 0; index < 2; index += 1) {
+          try { decoded = decodeURIComponent(decoded); } catch { break; }
+        }
+        const xhsId = decoded.match(/xiaohongshu\.com\/(?:discovery\/item|explore)\/([a-z0-9]+)/i)?.[1];
+        if (xhsId) return `https://www.xiaohongshu.com/explore/${xhsId}`;
+        const douyinId = decoded.match(/(?:iesdouyin\.com\/share\/video|douyin\.com\/video)\/(\d+)/i)?.[1];
+        if (douyinId) return `https://www.douyin.com/video/${douyinId}`;
+        return value;
+      }
+
+      function originalPostUrl(item) {
+        const sourceUrl = String(item.sourceUrl || "");
+        const shareUrl = String(item.url || "");
+        if (/xiaohongshu\.com/i.test(sourceUrl) && /[?&]xsec_token=/i.test(sourceUrl)) return sourceUrl;
+        if (/xhslink\.com/i.test(shareUrl)) return shareUrl;
+        return canonicalPostUrl(sourceUrl || shareUrl);
       }
 
       function trimUrl(url) {

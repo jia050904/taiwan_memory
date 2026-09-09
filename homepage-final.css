@@ -85,9 +85,9 @@ header {
   overflow: visible !important;
 }
 .header-art {
-  left: 330px !important;
+  left: 530px !important;
   right: auto !important;
-  top: -5px !important;
+  top: -8px !important;
   width: 500px !important;
   height: 190px !important;
   z-index: 7 !important;
@@ -467,7 +467,7 @@ header {
 @media (max-width: 760px) {
   html, body { background-attachment: scroll !important; }
   .site { width: 100% !important; padding: 4px 6px 8px !important; }
-  .header-art { left: 31% !important; top: 0 !important; width: 58% !important; height: 168px !important; }
+  .header-art { left: 25% !important; top: 0 !important; width: 58% !important; height: 168px !important; }
   .header-room-sticker { right: -34px !important; top: -18px !important; width: 165px !important; height: 170px !important; }
   .browser-divider { margin-left: calc(100% - 150px) !important; }
   .speech-crop { width: 92px !important; height: 94px !important; }
@@ -933,8 +933,16 @@ header {
   margin-top: 6px !important;
 }
 
-/* 左栏图片之间 */
-.meeting-quote,
-.avatar-sticker {
-  margin-top: 6px !important;
+.composer::before,
+#linkForm::before,
+#danceForm::before {
+  font-size: 11px !important;
+  line-height: 14px !important;
+}
+
+#travelPanel .meta-row span:last-child,
+#dancePanel .meta-row span:last-child {
+  color: #000 !important;
+  font-size: 11px !important;
+  line-height: 1.35 !important;
 }

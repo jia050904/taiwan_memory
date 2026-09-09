@@ -146,7 +146,7 @@ async function getPreview(targetUrl) {
   const response = await fetch(targetUrl, {
     redirect: "follow",
     headers: {
-      "user-agent": userAgent,
+      "user-agent": pickPreviewUserAgent(targetHost),
       accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
       "accept-language": "zh-CN,zh;q=0.9,en;q=0.7",
       referer: pickReferer(targetHost)
@@ -154,24 +154,30 @@ async function getPreview(targetUrl) {
   });
 
   const html = await response.text();
+  const blockedPage = /xiaohongshu\.com\/404\/sec_/i.test(response.url);
   const title =
-    pickNoteTitle(html) ||
-    pickMeta(html, ["og:title", "twitter:title", "description"]) ||
-    pickTitle(html) ||
+    (!blockedPage && pickNoteTitle(html)) ||
+    (!blockedPage && pickMeta(html, ["og:title", "twitter:title", "description"])) ||
+    (!blockedPage && pickTitle(html)) ||
     "";
   const rawCover =
-    pickFirstNoteImage(html) ||
-    pickUsefulImage(pickMeta(html, ["og:image", "og:image:url", "twitter:image", "twitter:image:src"])) ||
-    pickImageFromHtml(html) ||
+    (!blockedPage && pickFirstNoteImage(html)) ||
+    (!blockedPage && pickUsefulImage(pickMeta(html, ["og:image", "og:image:url", "twitter:image", "twitter:image:src"]))) ||
+    (!blockedPage && pickImageFromHtml(html)) ||
     "";
   const cover = rawCover ? `/api/image?url=${encodeURIComponent(rawCover)}` : "";
 
   return {
     title: cleanText(title),
     cover,
-    sourceUrl: response.url || targetUrl,
+    sourceUrl: canonicalPostUrl(response.url, targetUrl),
     ok: Boolean(rawCover)
   };
+}
+
+function pickPreviewUserAgent(hostname) {
+  if (/douyin|iesdouyin/i.test(hostname)) return "Baiduspider";
+  return userAgent;
 }
 
 async function proxyImage(targetUrl, res) {
@@ -268,11 +274,10 @@ function pickFirstNoteImage(html) {
 
 function pickImageFromHtml(html) {
   const unescaped = unescapeHtmlPayload(html);
-  const matches = [
-    ...unescaped.matchAll(/https?:\/\/[^"'`\s<>]+?(?:\.jpg|\.jpeg|\.png|\.webp|!h5_1080jpg)(?:\?[^"'`\s<>]*)?/gi),
-    ...unescaped.matchAll(/https?:\/\/[^"'`\s<>]*(?:douyinpic|byteimg|xhscdn)[^"'`\s<>]*/gi)
-  ];
-  const found = matches.map((match) => match[0]).find((item) => isUsefulNoteImage(item));
+  const matches = [...unescaped.matchAll(/https?:\/\/[^"'`\s<>\\]+/gi)];
+  const found = matches
+    .map((match) => match[0].replace(/[),;}]+$/, ""))
+    .find((item) => isUsefulNoteImage(item));
   return found || "";
 }
 
@@ -322,10 +327,47 @@ function pickUsefulImage(url) {
 
 function isUsefulNoteImage(url) {
   if (!url) return false;
-  if (/avatar|favicon|picasso-static|fe-platform|static|logo|icon/i.test(url)) return false;
-  if (/xhscdn\.com|xiaohongshu\.com/i.test(url)) return /sns-webpic|sns-img|sns-na/i.test(url);
-  if (/douyinpic\.com|byteimg\.com|douyinstatic\.com/i.test(url)) return true;
-  return /\.(png|jpe?g|webp|gif)(\?|#|$)/i.test(url);
+  try {
+    const parsed = new URL(decodeHtml(url));
+    const host = parsed.hostname.toLowerCase();
+    const hasImagePath = parsed.pathname.length > 1;
+    if (/avatar|favicon|picasso-static|fe-platform|logo|icon/i.test(parsed.href)) return false;
+    if (/xhscdn\.com$|xiaohongshu\.com$/.test(host)) {
+      return hasImagePath && /sns-webpic|sns-img|sns-na/.test(host);
+    }
+    if (/douyinpic\.com$|byteimg\.com$|douyinstatic\.com$/.test(host)) return hasImagePath;
+    return hasImagePath && /\.(png|jpe?g|webp|gif)$/i.test(parsed.pathname);
+  } catch {
+    return false;
+  }
+}
+
+function canonicalPostUrl(responseUrl, targetUrl) {
+  let xhsFallback = "";
+  const values = [unwrapXhsOriginalUrl(responseUrl), responseUrl, targetUrl].filter(Boolean);
+  for (const value of values) {
+    let decoded = String(value || "");
+    for (let index = 0; index < 2; index += 1) {
+      try { decoded = decodeURIComponent(decoded); } catch { break; }
+    }
+    const xhsId = decoded.match(/xiaohongshu\.com\/(?:discovery\/item|explore)\/([a-z0-9]+)/i)?.[1];
+    if (xhsId && /[?&]xsec_token=/i.test(decoded)) return value;
+    if (xhsId) xhsFallback = `https://www.xiaohongshu.com/explore/${xhsId}`;
+    if (/xhslink\.com/i.test(decoded)) return value;
+    const douyinId = decoded.match(/(?:iesdouyin\.com\/share\/video|douyin\.com\/video)\/(\d+)/i)?.[1];
+    if (douyinId) return `https://www.douyin.com/video/${douyinId}`;
+  }
+  return xhsFallback || targetUrl;
+}
+
+function unwrapXhsOriginalUrl(value) {
+  try {
+    const parsed = new URL(value);
+    const originalUrl = parsed.searchParams.get("originalUrl");
+    return /xiaohongshu\.com/i.test(originalUrl || "") ? originalUrl : "";
+  } catch {
+    return "";
+  }
 }
 
 function pickReferer(hostname) {
