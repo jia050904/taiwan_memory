@@ -1,145 +1,109 @@
-# 台湾记忆
+一个为了和朋友去台湾旅行，最后越做越像私人小破站的东西。
 
-轻量收藏网站。可以保存小红书 / 抖音链接，自动抓标题和封面；也可以像朋友圈一样发文字和照片。最开始是为台湾旅行攻略做的，所以默认有「旅游攻略」「低脂小舞蹈」「动态墙」三个区域。
+最开始只是想找个地方存小红书和抖音攻略，不然每次收藏完以后就再也找不到了。  
+后来又加了动态、照片、音乐、乱七八糟的小组件，最后就变成现在这样了。
 
-在线预览：<https://taiwan-memory.onrender.com/>
+不是正经产品，也没有打算做得很“现代”。  
+反而很想保留一点以前个人主页、博客、空间、贴纸网站那种乱乱的感觉。
 
-## 功能
+在线地址：
 
-- 保存小红书 / 抖音分享链接
-- 自动抓取标题、封面图，并保留原帖跳转
-- 旅游攻略支持地点分类：台东、高雄、花莲、台北、台南、其他
-- 每个地点下再分攻略 / 美食
-- 单独的低脂小舞蹈收藏区
-- 动态墙支持文字 + 1 张图片
-- 右下角 BGM 播放器，支持上一首 / 下一首 / 自动循环
-- 移动端适配
+https://taiwan-memory.onrender.com/
 
+---
+## 这个网站是干嘛的
+
+主要就是给我和朋友一起用的。
+现在里面可以：
+
+- 收藏小红书 / 抖音的旅行攻略
+- 自动抓链接标题和封面
+- 按台湾不同城市分类
+- 攻略和美食分开存
+- 单独收藏一些跳舞视频
+- 发类似朋友圈一样的文字和照片
+- 听我们自己放进去的 BGM
+- 随便记录一些两人的日常
+
+台湾目前分成：
+- 台北 台中 台东 台南 高雄 花莲 其他
+
+分类主要是：
+- 攻略 美食
+以后想到什么可能还会继续乱加。
+
+---
+## 关于这个页面
+
+我比较想要的是那种：
+- 2000 年代个人主页 老博客 日本旧网页 像素图 GIF 小贴纸 很挤但很热闹的排版
+
+所以它可能看起来有一点乱。 这是故意的 : )
+
+---
+## 用到的东西
+
+前端没有用什么很复杂的框架，主要还是直接写：HTML CSS JavaScript
+
+后端：Node.js
+
+另外还用了：Firebase Firestore用来存收藏和动态数据，Cloudinary用来存上传的图片，Render用来部署网站
+链接预览和部分图片会经过 Node 后端处理。
+
+---
 ## 项目结构
+`index.html` 基本上大部分网页内容和交互都在这里。
+`server.js` 负责：启动本地服务器，读取静态文件，小红书 / 抖音链接预览，抓取标题和封面，图片代理，收藏和动态相关接口，音频文件读取
+`assets/` 基本就是各种图片、GIF、贴纸之类的东西。
 
-.
-├── index.html          # 前端页面、样式、Firebase/Cloudinary 配置
-├── server.js           # Node 后端：静态文件、抓封面、代理图片、音频播放支持
-├── package.json        # 启动命令
-├── *.mp3               # BGM 音乐
-```
-
-## 如果你也想用这个项目
-
-你需要准备：
-
-- 一个 GitHub 仓库
-- 一个 Firebase 项目，用 Firestore 存收藏和动态
-- 一个 Cloudinary 账号，用来存动态墙上传的图片
-- 一个能跑 Node 的部署平台，比如 Render
-（这些都是免费版 且额度能相对充足的）
-## 需要改哪里
-
-主要改 `index.html` 里的这几处。
-
-### 1. Firebase 配置
-找到：
-
-const firebaseConfig = {
-  apiKey: "...",
-  authDomain: "...",
-  projectId: "...",
-  storageBucket: "...",
-  messagingSenderId: "...",
-  appId: "..."
-};
-
-
-换成你自己的 Firebase Web App 配置。
-
-Firestore 需要能读写。只自己和朋友用的话，可以先用公开规则：
-
-
-rules_version = '2';
-
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true;
-    }
-  }
-}
-
-公开规则很方便，但知道网址的人都能写数据。如果要长期公开展示，建议再加登录或密码。
-
-### 2. Cloudinary 配置
-
-找到：
-
-```js
-const cloudinaryConfig = {
-  cloudName: "...",
-  uploadPreset: "..."
-};
-
-
-改成你自己的 Cloudinary `cloudName` 和 unsigned upload preset。
-不要把 Cloudinary API Secret 写进前端。
-
-### 3. 网站文字
-
-标题、简介、页脚都在 `index.html` 里，可以直接搜索这些文字改：
-
-台湾记忆
-TAIWAN I LOVE U
-Yukiri & Zhiya
-
-
-分类也在 `index.html` 里：
-
-```js
-const cityOptions = ["全部", "台东", "高雄", "花莲", "台北", "台南", "其他"];
-const topicOptions = ["全部", "攻略", "美食"];
-
-想换城市或分类，改这里就行。
-
-### 4. BGM
-
-把 `.mp3` 放在仓库根目录里，播放器会自动读取。
-
-如果想让播放器一开始就显示好看的歌名，可以改：
-
-```js
-const fallbackPlaylist = [
-  { title: "太聪明--陈绮贞", src: "tai-cong-ming.mp3" }
-];
-```
-
-浏览器通常不允许网页刚打开就自动播放音乐，所以需要用户先点一下播放。
-
+---
 ## 本地运行
 
 需要 Node.js 20 或以上。
 
 ```bash
 npm start
+```
 
 然后打开：
-http://localhost:4173/
+```text
+http://127.0.0.1:4173/
+```
 
+不要直接双击 `index.html` 打开。。。因为链接预览、图片代理和一些数据功能需要 Node server。
 
-不要直接双击打开 `index.html`，因为抓封面和音频播放都需要 Node 服务。
+---
+## 如果你也想拿去改
 
-## 部署到 Render
+可以，代码本身没什么特别复杂的。
+不过需要自己准备：
+* Firebase
+* Cloudinary
+* Render 或其他能跑 Node.js 的平台
 
-1. 把代码推到 GitHub
-2. 在 Render 新建 Web Service
-3. 连接你的 GitHub 仓库
-4. Build Command 填：   npm install
+然后把 `index.html` 里面相关配置换成自己的。
+Firebase 主要用来存数据，Cloudinary 用来存上传图片。
 
-5. Start Command 填：   npm start
+如果只是自己和朋友用，可以配置得简单一点。
+如果准备公开给很多人用，就不要直接把数据库权限全部放开。
 
-部署完成后，Render 会给你一个网址。
+---
 
-## 注意
+## BGM
+音乐文件可以直接放进项目里。
+网站会读取音频文件作为播放列表。
+浏览器一般不会允许网页刚打开就自动播放音乐，所以第一次还是需要自己点一下播放。
+这个限制不是我故意的 T_T
 
-- 小红书 / 抖音页面结构可能会变，封面抓取不保证永远稳定。
-- 动态墙图片存在 Cloudinary，文字数据存在 Firebase Firestore。
-- 这个项目本来是给私人小站用的，不带用户登录和后台管理。
+---
+## 一些已知问题
+小红书和抖音的页面结构经常会改。。。。。。。。。。。。
+所以：封面偶尔可能抓不到，标题偶尔会失败，原链接跳转可能受平台限制。
 
+这种情况下大概率不是网站彻底坏了，而是对方页面又变了。
 
+---made by zhiya
+for our trip, our photos, and all the useless little things we don't want to forget ♡
+
+```
+```
