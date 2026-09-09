@@ -104,6 +104,3 @@ Firebase 主要用来存数据，Cloudinary 用来存上传图片。
 
 ---made by zhiya
 for our trip, our photos, and all the useless little things we don't want to forget ♡
-
-```
-```
