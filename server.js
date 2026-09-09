@@ -404,9 +404,8 @@ function ensureStorage() {
 
 function listAudioFiles() {
   const places = [
-    { dir: root, prefix: "" },
-    { dir: path.join(root, "audio"), prefix: "audio/" }
-  ];
+  { dir: path.join(root, "songs"), prefix: "songs/" }
+];
   const seen = new Set();
   const tracks = [];
 
