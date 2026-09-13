@@ -1736,7 +1736,10 @@
               <span>${formatTime(post.createdAt)}</span>
             </div>
             ${post.text ? `<p class="post-text">${escapeHtml(post.text)}</p>` : ""}
-            ${images.length ? `<div class="photos photos-${images.length}">${images.map((src) => `<img src="${escapeHtml(src)}" data-full-image="${escapeHtml(src)}" alt="" loading="lazy" />`).join("")}</div>` : ""}
+            ${images.length ? `<div class="photos photos-${images.length}">${images.map((src) => {
+              const imageUrl = cloudinaryDisplayUrl(src);
+              return `<img src="${escapeHtml(imageUrl)}" data-full-image="${escapeHtml(imageUrl)}" alt="" loading="lazy" />`;
+            }).join("")}</div>` : ""}
             <section class="post-comments" aria-label="评论">
               <div class="comments-title">comments (${comments.length})</div>
               <div class="comment-list">
@@ -1767,7 +1770,7 @@
           const comments = Array.isArray(post.comments) ? post.comments : [];
           return `
             <button class="home-post-preview" type="button" data-home-post="${escapeHtml(post.id)}">
-              ${images[0] ? `<img src="${escapeHtml(images[0])}" alt="" loading="lazy" />` : ""}
+             ${images[0] ? `<img src="${escapeHtml(cloudinaryDisplayUrl(images[0]))}" alt="" loading="lazy" />` : ""}
               <span class="home-post-copy">
                 <span class="home-post-head"><strong>${escapeHtml(post.author || "zhiya & yukiri")}</strong><time>${formatTime(post.createdAt)}</time></span>
                 <span class="home-post-text">${escapeHtml(post.text || "（照片日记）")}</span>
@@ -2160,6 +2163,17 @@
         clearTimeout(showToast.timer);
         showToast.timer = setTimeout(() => toast.classList.remove("show"), 1400);
       }
+      
+      function cloudinaryDisplayUrl(url) {
+        const value = String(url || "");
+        if (!/res\.cloudinary\.com/i.test(value)) return value;  
+        if (value.includes("/upload/f_auto,q_auto/")) return value;
+
+        return value.replace(
+          "/upload/",
+         "/upload/f_auto,q_auto/"
+      );
+    }
 
       function escapeHtml(value) {
         return String(value || "")
