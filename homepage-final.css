@@ -325,7 +325,15 @@ header {
   background: rgba(243,250,237,.91) !important;
 }
 .travel-block .section-head { background: #a5d2ad !important; border-color: #78a386 !important; }
-.updates-block .feed,
+.updates-block .feed {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 3px !important;
+  align-items: start !important;
+  align-content: start !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
 .travel-block .grid {
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -731,7 +739,7 @@ header {
 }
 
 
-/* PROFILE：内容多少，框就长多少 */
+
 .welcome-box {
   box-sizing: border-box !important;
 
@@ -751,7 +759,7 @@ header {
 }
 
 
-/* PROFILE 里面的文字不要被奇怪高度限制 */
+
 .welcome-box p {
   height: auto !important;
   min-height: 0 !important;
@@ -859,14 +867,15 @@ header {
    ========================= */
 
 .welcome-box {
-  flex: 0 0 auto !important;   /* 关键：取消固定116px高度 */
+  flex: 0 0 auto !important;
   width: 100% !important;
 
-  height: auto !important;
+  height: 300px !important;
   min-height: 0 !important;
-  max-height: none !important;
+  max-height: 360px !important;
 
-  overflow: visible !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
 }
 
 .welcome-box p {
@@ -948,31 +957,195 @@ header {
 }
 
 /* Diary: one entry may contain a Moments-style photo set and full text. */
-.post-text {
+#feedPanel #feed {
+  display: flex !important;
+  flex-direction: column;
+  gap: 5px !important;
+}
+#feedPanel .diary-post {
+  width: 90% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+#feedPanel .post-text {
   display: block !important;
+  max-height: none !important;
   min-height: 0 !important;
   overflow: visible !important;
   white-space: pre-wrap !important;
   overflow-wrap: anywhere;
+
+  font-family: var(--old-chinese) !important;
+  font-size: 15px !important;
+  font-weight: 400 !important;
+  line-height: 1.5 !important;
+
   -webkit-line-clamp: initial !important;
+  -webkit-box-orient: initial !important;
 }
-.photos {
+#feedPanel .photos {
   display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  gap: 2px !important;
+  grid-template-columns: repeat(3, 128px) !important;
+  grid-auto-rows: 128px;
+  gap: 3px !important;
+  width: max-content;
+  max-width: 100%;
+  margin-top: 5px;
   aspect-ratio: auto !important;
   place-items: stretch !important;
-  background: #fff !important;
+  overflow: visible;
+  background: transparent !important;
 }
-.photos.photos-1 { grid-template-columns: 1fr !important; aspect-ratio: 1 / .62 !important; }
-.photos.photos-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-.photos img {
-  width: 100% !important;
-  height: auto !important;
+#feedPanel .photos.photos-1 {
+  grid-template-columns: 128px !important;
+}
+#feedPanel .photos.photos-2 { grid-template-columns: repeat(2, 128px) !important; }
+#feedPanel .photos.photos-3 { grid-template-columns: repeat(3, 128px) !important; }
+#feedPanel .photos.photos-4 { grid-template-columns: repeat(2, 128px) !important; }
+#feedPanel .photos img {
+  display: block;
+  width: 128px !important;
+  height: 128px !important;
   aspect-ratio: 1 / 1 !important;
   object-fit: cover !important;
+  cursor: zoom-in;
 }
-.photos.photos-1 img { height: 100% !important; aspect-ratio: auto !important; object-fit: contain !important; }
+.diary-more {
+  display: block;
+  margin: 5px auto 1px;
+  padding: 2px 8px;
+  border: 1px outset #ccc;
+  border-radius: 0;
+  background: #eee;
+  color: #333;
+  font: 9px Tahoma, Arial, sans-serif;
+}
+.diary-more[hidden] { display: none !important; }
+.post-comments {
+  margin: 4px 4px 2px;
+  padding-top: 3px;
+  border-top: 1px dotted #c987a1;
+  color: #5f4d56;
+  font: 9px/1.35 var(--old-chinese);
+}
+.comments-title { font: 8px Tahoma, Arial, sans-serif; }
+.post-comment { padding: 3px 1px; border-bottom: 1px dotted #e2b5c7; }
+.post-comment p { margin: 1px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.comments-more {
+  margin: 2px 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #a25f7b;
+  font: 8px Tahoma, Arial, sans-serif;
+  text-decoration: underline;
+}
+.comment-form {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr) 58px;
+  gap: 4px;
+  align-items: stretch;
+  margin-top: 5px;
+  padding-top: 3px;
+  border-top: 1px dotted #c987a1;
+}
+.comment-name,
+.comment-text {
+  box-sizing: border-box;
+  width: 100%;
+  height: 24px;
+  min-height: 24px;
+  margin: 0;
+  padding: 1px 4px;
+  border: 1px inset #aaa;
+  border-radius: 0;
+  background: #fff;
+  font: 9px/1.2 var(--old-chinese);
+}
+.comment-text { resize: vertical; }
+.comment-form button {
+  box-sizing: border-box;
+  width: 58px;
+  height: 24px;
+  min-height: 24px;
+  margin: 0;
+  padding: 1px 4px;
+  border: 1px outset #ccc;
+  border-radius: 0;
+  background: #eee;
+  font: 8px Tahoma, Arial, sans-serif;
+}
+#feedPanel .post .actions {
+  margin: 2px 4px 4px;
+  padding: 0;
+}
+#feedPanel .post .delete {
+  width: auto;
+  min-width: 0;
+  min-height: 24px;
+  padding: 2px 9px;
+  font-size: 11px;
+}
+@media (max-width: 600px) {
+  #feedPanel .photos {
+    grid-template-columns: repeat(3, 96px) !important;
+    grid-auto-rows: 96px;
+  }
+  #feedPanel .photos.photos-1 { grid-template-columns: 96px !important; }
+  #feedPanel .photos.photos-2 { grid-template-columns: repeat(2, 96px) !important; }
+  #feedPanel .photos.photos-3 { grid-template-columns: repeat(3, 96px) !important; }
+  #feedPanel .photos.photos-4 { grid-template-columns: repeat(2, 96px) !important; }
+  #feedPanel .photos img {
+    width: 96px !important;
+    height: 96px !important;
+  }
+  .comment-form {
+    grid-template-columns: minmax(90px, 130px) minmax(0, 1fr) 48px;
+  }
+  .comment-form button { width: 48px; }
+}
+.home-post-preview {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px;
+  width: 100%;
+  min-height: 0;
+  padding: 3px;
+  border: 1px solid #e4a2bc;
+  border-radius: 0;
+  background: #fff;
+  color: #5f4d56;
+  text-align: left;
+}
+.home-post-preview > img {
+  width: 66px;
+  height: 66px;
+  object-fit: cover;
+}
+.home-post-copy { display: block; min-width: 0; }
+.home-post-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 3px;
+  font: 7px/1.2 Tahoma, Arial, sans-serif;
+}
+.home-post-text {
+  display: -webkit-box;
+  margin-top: 2px;
+  overflow: hidden;
+  font: 9px/1.3 var(--old-chinese);
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.home-post-meta {
+  display: block;
+  margin-top: 2px;
+  color: #a36b82;
+  font: 7px/1.2 Tahoma, Arial, sans-serif;
+}
 
 /* Word guide archive: compact, plain old-web controls. */
 .tabs .nav-guides { margin-left: 2px; border: 1px outset #c7c7c7; background: #e9e9e9; }
@@ -1034,10 +1207,58 @@ header {
 }
 .guide-editor .docx-wrapper { padding: 0 !important; background: #fff !important; }
 .guide-editor .docx-wrapper > section.docx { margin: 0 auto 5px !important; box-shadow: none !important; }
+.guide-zoom-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+.guide-zoom-controls output {
+  min-width: 38px;
+  text-align: center;
+  font: 10px Tahoma, Arial, sans-serif;
+}
+body.guides-mode .right-rail { display: none !important; }
+body.guides-mode .main-column,
+body.guides-mode #guidesPanel,
+body.guides-mode .guide-import,
+body.guides-mode .guide-workspace {
+  box-sizing: border-box;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+}
+body.guides-mode .guide-layout {
+  grid-template-columns: 170px minmax(0, 1fr);
+  width: 100%;
+}
+body.guides-mode .guide-editor {
+  box-sizing: border-box;
+  width: 100%;
+  height: clamp(560px, 72vh, 800px);
+  min-height: 560px;
+  max-height: 800px;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+body.guides-mode .guide-editor .docx-wrapper { zoom: var(--guide-zoom, 1); }
+@media (min-width: 701px) {
+  body.guides-mode .oldweb-layout {
+    grid-template-columns: 148px minmax(0, 1fr) !important;
+  }
+}
 @media (max-width: 700px) {
   .guide-import { grid-template-columns: 1fr 85px !important; }
   .guide-import .file-name { grid-column: 1 / -1; }
   .guide-layout { grid-template-columns: 1fr; }
   .guide-list { display: flex; gap: 3px; overflow-x: auto; }
   .guide-list-item { flex: 0 0 140px; }
+  body.guides-mode .guide-editor {
+    height: 68vh;
+    min-height: 420px;
+    max-height: 700px;
+  }
+}
+.welcome-box .box-cherries {
+  display: none !important;
 }
