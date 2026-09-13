@@ -696,7 +696,7 @@
       }
     </style>
     <link rel="stylesheet" href="scrapbook.css?v=20260908-2" />
-    <link rel="stylesheet" href="homepage-final.css?v=20260908-6" />
+    <link rel="stylesheet" href="homepage-final.css?v=20260913-1" />
     <script type="module" src="friends-3d.js?v=20260909-3"></script>
   </head>
   <body>
@@ -754,6 +754,7 @@
         <button class="tab nav-diary" type="button" data-tab="feed">▣ DIARY</button>
         <button class="tab nav-travel" type="button" data-tab="travel">✈ TRAVEL</button>
         <button class="tab nav-dance" type="button" data-tab="dance">♫ DANCE</button>
+        <button class="tab nav-guides" type="button" data-tab="guides">▤ GUIDES</button>
       </nav>
 
       <img class="browser-divider" src="assets/stickers/hello-strip.png" alt="" aria-hidden="true" />
@@ -887,17 +888,50 @@
       <section class="panel" id="feedPanel">
         <form class="composer" id="postForm">
           <input id="author" type="text" maxlength="30" placeholder="发言人" />
-          <textarea id="postText" maxlength="2000" placeholder="想写点儿啥捏...."></textarea>
+          <textarea id="postText" maxlength="10000" placeholder="想写点儿啥捏...."></textarea>
           <div class="composer-row">
             <label class="file-label">
-              <input id="postImages" type="file" accept="image/*" />
+              <input id="postImages" type="file" accept="image/*" multiple />
               选照片
             </label>
-            <span class="file-name" id="fileName">最多 1 张</span>
+            <span class="file-name" id="fileName">最多 9 张</span>
             <button class="primary" type="submit">发布</button>
           </div>
         </form>
         <section class="feed" id="feed" aria-label="动态墙"></section>
+      </section>
+
+      <section class="panel" id="guidesPanel">
+        <form class="input-area guide-import" id="guideImportForm">
+          <input id="guideTitle" type="text" maxlength="80" placeholder="攻略标题（不填就用 Word 文件名）" />
+          <label class="file-label">
+            <input id="guideFile" type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+            选择 .docx
+          </label>
+          <span class="file-name" id="guideFileName">尚未选择 Word 文档</span>
+          <button class="primary" type="submit">导入</button>
+        </form>
+        <div class="status" id="guideStatus">正在读取 Word 文档...</div>
+        <div class="guide-layout">
+          <aside class="guide-list" id="guideList" aria-label="攻略文档列表"></aside>
+          <section class="guide-workspace">
+            <div class="guide-toolbar" aria-label="攻略编辑工具">
+              <button type="button" data-guide-command="bold"><b>B</b></button>
+              <button type="button" data-guide-command="italic"><i>I</i></button>
+              <button type="button" data-guide-command="underline"><u>U</u></button>
+              <select id="guideFont" aria-label="字体">
+                <option value="">原字体</option><option value="PMingLiU">PMingLiU</option><option value="SimSun">SimSun</option><option value="KaiTi">KaiTi</option><option value="Arial">Arial</option>
+              </select>
+              <select id="guideFontSize" aria-label="字号">
+                <option value="">原字号</option><option value="2">小</option><option value="3">正文</option><option value="4">中</option><option value="5">大</option>
+              </select>
+              <button id="guideSave" type="button">保存修改</button>
+              <button id="guideDelete" type="button">删除文档</button>
+            </div>
+            <div id="guideWordStyles"></div>
+            <article class="guide-editor" id="guideEditor" contenteditable="true" spellcheck="true" aria-label="可编辑攻略正文"><p>从左边打开一篇攻略，或在上面导入 .docx 文档。</p></article>
+          </section>
+        </div>
       </section>
 
         </div>
@@ -963,6 +997,8 @@
     <div class="toast" id="toast">已保存</div>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="vendor/jszip.min.js"></script>
+    <script src="vendor/docx-preview.min.js"></script>
     <script>
       const firebaseConfig = {
         apiKey: "AIzaSyChRe5KowJvvGQnu2gaQ391a-TOZul7AP8",
@@ -990,7 +1026,7 @@
         { title: "后来的我们--五月天", src: "songs/Us and Them.mp3" },
         { title: "打上花火--Daoko&米津玄師", src: "songs/fireworks.mp3" }
       ];
-      const state = { links: [], posts: [], activeTab: "home", city: "全部", topic: "全部" };
+      const state = { links: [], posts: [], guides: [], activeTab: "home", city: "全部", topic: "全部" };
       let playlist = [];
       let trackIndex = 0;
 
@@ -999,7 +1035,8 @@
         home: document.querySelector("#homePanel"),
         travel: document.querySelector("#travelPanel"),
         dance: document.querySelector("#dancePanel"),
-        feed: document.querySelector("#feedPanel")
+        feed: document.querySelector("#feedPanel"),
+        guides: document.querySelector("#guidesPanel")
       };
       const linkForm = document.querySelector("#linkForm");
       const city = document.querySelector("#city");
@@ -1047,7 +1084,20 @@
       const guestbookName = document.querySelector("#guestbookName");
       const guestbookText = document.querySelector("#guestbookText");
       const guestbookEntries = document.querySelector("#guestbookEntries");
+      const guideImportForm = document.querySelector("#guideImportForm");
+      const guideTitle = document.querySelector("#guideTitle");
+      const guideFile = document.querySelector("#guideFile");
+      const guideFileName = document.querySelector("#guideFileName");
+      const guideStatus = document.querySelector("#guideStatus");
+      const guideList = document.querySelector("#guideList");
+      const guideEditor = document.querySelector("#guideEditor");
+      const guideWordStyles = document.querySelector("#guideWordStyles");
+      const guideFont = document.querySelector("#guideFont");
+      const guideFontSize = document.querySelector("#guideFontSize");
+      const guideSave = document.querySelector("#guideSave");
+      const guideDelete = document.querySelector("#guideDelete");
       let activePreviewId = "";
+      let activeGuideId = "";
       const coverRefreshes = new Set();
 
       init();
@@ -1076,8 +1126,21 @@
         postForm.addEventListener("submit", savePost);
         guestbookForm.addEventListener("submit", saveGuestbook);
         postImages.addEventListener("change", () => {
-          fileName.textContent = postImages.files.length ? postImages.files[0].name : "最多 1 张";
+          const count = Math.min(postImages.files.length, 9);
+          fileName.textContent = count ? `已选 ${count} 张${postImages.files.length > 9 ? "（只上传前 9 张）" : ""}` : "最多 9 张";
         });
+        guideFile.addEventListener("change", () => {
+          guideFileName.textContent = guideFile.files[0]?.name || "尚未选择 Word 文档";
+        });
+        guideImportForm.addEventListener("submit", importGuideDocument);
+        guideList.addEventListener("click", handleGuideListClick);
+        guideSave.addEventListener("click", saveActiveGuide);
+        guideDelete.addEventListener("click", deleteActiveGuide);
+        document.querySelectorAll("[data-guide-command]").forEach((button) => {
+          button.addEventListener("click", () => runGuideCommand(button.dataset.guideCommand));
+        });
+        guideFont.addEventListener("change", () => runGuideCommand("fontName", guideFont.value));
+        guideFontSize.addEventListener("change", () => runGuideCommand("fontSize", guideFontSize.value));
 
         travelGrid.addEventListener("click", handleLinkClick);
         homeTravelGrid.addEventListener("click", handleLinkClick);
@@ -1117,6 +1180,7 @@
 
         initMemo();
         watchGuestbook();
+        watchGuides();
         loadPlaylist();
         loadData();
       }
@@ -1336,36 +1400,32 @@
       async function savePost(event) {
         event.preventDefault();
         const text = postText.value.trim();
-        const file = postImages.files[0];
-        if (!text && !file) {
-          showToast("写点文字或选张照片");
+        const files = Array.from(postImages.files).slice(0, 9);
+        if (!text && !files.length) {
+          showToast("写点文字或选照片");
           return;
         }
 
         postForm.querySelector("button[type='submit']").disabled = true;
-        let imageUrl = "";
         try {
-          imageUrl = file ? await uploadToCloudinary(file) : "";
+          const imageUrls = files.length ? await Promise.all(files.map(uploadToCloudinary)) : [];
+          await db.collection("posts").add({
+            author: (author.value || "zhiya & yukiri").trim().slice(0, 30),
+            text: text.slice(0, 10000),
+            images: imageUrls,
+            createdAt: Date.now()
+          });
+          postText.value = "";
+          postImages.value = "";
+          fileName.textContent = "最多 9 张";
+          await loadData();
+          showToast("已发布");
         } catch (error) {
           console.error(error);
-          showToast("图片没传上，再试一次");
+          showToast(files.length ? "日记或图片没传上，再试一次" : "日记没发布成功，再试一次");
+        } finally {
           postForm.querySelector("button[type='submit']").disabled = false;
-          return;
         }
-
-        await db.collection("posts").add({
-          author: (author.value || "zhiya & yukiri").trim().slice(0, 30),
-          text: text.slice(0, 2000),
-          images: imageUrl ? [imageUrl] : [],
-          createdAt: Date.now()
-        });
-
-        postText.value = "";
-        postImages.value = "";
-        fileName.textContent = "最多 1 张";
-        postForm.querySelector("button[type='submit']").disabled = false;
-        await loadData();
-        showToast("已发布");
       }
 
       function render() {
@@ -1405,11 +1465,182 @@
         `;
       }
 
+      function watchGuides() {
+        db.collection("guideDocs").orderBy("updatedAt", "desc").onSnapshot((snapshot) => {
+          state.guides = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+          renderGuideList();
+          if (activeGuideId && !state.guides.some((item) => item.id === activeGuideId)) clearGuideEditor();
+        }, (error) => {
+          console.error(error);
+          guideList.textContent = "攻略文档数据库暂时离线...";
+        });
+      }
+
+      function renderGuideList() {
+        if (!state.guides.length) {
+          guideList.innerHTML = '<p class="guide-empty">还没有攻略文档。</p>';
+          return;
+        }
+        guideList.innerHTML = state.guides.map((guide) => `
+          <button type="button" class="guide-list-item${guide.id === activeGuideId ? " active" : ""}" data-guide-id="${escapeHtml(guide.id)}">
+            <b>${escapeHtml(guide.title || "未命名攻略")}</b>
+            <small>${formatTime(guide.updatedAt || guide.createdAt)}</small>
+          </button>
+        `).join("");
+      }
+
+      async function importGuideDocument(event) {
+        event.preventDefault();
+        const file = guideFile.files[0];
+        if (!file) {
+          showToast("先选择一个 .docx 文件");
+          return;
+        }
+        if (!window.docx?.renderAsync) {
+          showToast("Word 读取组件没有加载上");
+          return;
+        }
+
+        guideStatus.classList.add("show");
+        guideImportForm.querySelector("button[type='submit']").disabled = true;
+        guideEditor.replaceChildren();
+        guideWordStyles.replaceChildren();
+        try {
+          await window.docx.renderAsync(file, guideEditor, guideWordStyles, {
+            className: "docx",
+            inWrapper: true,
+            breakPages: false,
+            ignoreWidth: false,
+            ignoreHeight: true,
+            useBase64URL: true
+          });
+          guideEditor.contentEditable = "true";
+          const title = guideTitle.value.trim() || file.name.replace(/\.docx$/i, "");
+          const saved = await storeGuideDocument({ title, createNew: true });
+          activeGuideId = saved.id;
+          guideTitle.value = title;
+          renderGuideList();
+          showToast("攻略已导入，可以直接编辑");
+        } catch (error) {
+          console.error(error);
+          showToast(error.message.includes("too large") ? "文档太大，请压缩图片后再导入" : "这个 Word 文档没有读取成功");
+        } finally {
+          guideStatus.classList.remove("show");
+          guideImportForm.querySelector("button[type='submit']").disabled = false;
+        }
+      }
+
+      async function storeGuideDocument({ title, createNew = false } = {}) {
+        await persistGuideImages();
+        const payload = {
+          title: (title || guideTitle.value.trim() || "未命名攻略").slice(0, 80),
+          html: sanitizeGuideHtml(guideEditor.innerHTML),
+          css: readGuideCss(),
+          updatedAt: Date.now()
+        };
+        if (new Blob([payload.html, payload.css]).size > 850000) throw new Error("document is too large for Firestore");
+        if (createNew || !activeGuideId) {
+          payload.createdAt = Date.now();
+          return db.collection("guideDocs").add(payload);
+        }
+        await db.collection("guideDocs").doc(activeGuideId).update(payload);
+        return { id: activeGuideId };
+      }
+
+      async function persistGuideImages() {
+        const images = Array.from(guideEditor.querySelectorAll('img[src^="data:"]'));
+        for (let index = 0; index < images.length; index += 1) {
+          const response = await fetch(images[index].src);
+          const blob = await response.blob();
+          const extension = blob.type.includes("png") ? "png" : blob.type.includes("gif") ? "gif" : "jpg";
+          const file = new File([blob], `guide-${Date.now()}-${index}.${extension}`, { type: blob.type });
+          images[index].src = await uploadToCloudinary(file);
+        }
+      }
+
+      function handleGuideListClick(event) {
+        const button = event.target.closest("[data-guide-id]");
+        if (!button) return;
+        const guide = state.guides.find((item) => item.id === button.dataset.guideId);
+        if (!guide) return;
+        activeGuideId = guide.id;
+        guideTitle.value = guide.title || "";
+        applyGuideCss(guide.css || "");
+        guideEditor.innerHTML = sanitizeGuideHtml(guide.html || "<p>空文档</p>");
+        renderGuideList();
+      }
+
+      function readGuideCss() {
+        return Array.from(guideWordStyles.querySelectorAll("style"), (style) => style.textContent || "").join("\n");
+      }
+
+      function applyGuideCss(css) {
+        guideWordStyles.replaceChildren();
+        if (!css) return;
+        const style = document.createElement("style");
+        style.textContent = String(css).replace(/<\/style/gi, "<\\/style");
+        guideWordStyles.append(style);
+      }
+
+      function sanitizeGuideHtml(html) {
+        const template = document.createElement("template");
+        template.innerHTML = String(html || "");
+        template.content.querySelectorAll("script, iframe, object, embed, form, input, button").forEach((node) => node.remove());
+        template.content.querySelectorAll("*").forEach((node) => {
+          Array.from(node.attributes).forEach((attribute) => {
+            const name = attribute.name.toLowerCase();
+            const value = attribute.value.trim();
+            if (name.startsWith("on") || ((name === "href" || name === "src") && /^javascript:/i.test(value))) {
+              node.removeAttribute(attribute.name);
+            }
+          });
+        });
+        return template.innerHTML;
+      }
+
+      async function saveActiveGuide() {
+        if (!activeGuideId) {
+          showToast("先导入或打开一篇攻略");
+          return;
+        }
+        guideSave.disabled = true;
+        try {
+          await storeGuideDocument();
+          showToast("攻略修改已保存");
+        } catch (error) {
+          console.error(error);
+          showToast(error.message.includes("too large") ? "文档太大，请压缩图片后再导入" : "攻略没有保存成功");
+        } finally {
+          guideSave.disabled = false;
+        }
+      }
+
+      async function deleteActiveGuide() {
+        if (!activeGuideId || !confirm("确定删除这篇攻略文档吗？")) return;
+        await db.collection("guideDocs").doc(activeGuideId).delete();
+        clearGuideEditor();
+        showToast("攻略文档已删除");
+      }
+
+      function clearGuideEditor() {
+        activeGuideId = "";
+        guideTitle.value = "";
+        guideWordStyles.replaceChildren();
+        guideEditor.innerHTML = "<p>从左边打开一篇攻略，或在上面导入 .docx 文档。</p>";
+        renderGuideList();
+      }
+
+      function runGuideCommand(command, value = null) {
+        if (!value && (command === "fontName" || command === "fontSize")) return;
+        guideEditor.focus();
+        document.execCommand(command, false, value);
+      }
+
       function renderPosts(posts, emptyText, allowDelete = true) {
         if (!posts.length) return `<div class="empty">${emptyText}</div>`;
         return posts.map((post) => `
           <article class="post">
-            ${post.images && post.images.length ? `<div class="photos">${post.images.map((src) => `<img src="${escapeHtml(src)}" data-full-image="${escapeHtml(src)}" alt="" loading="lazy" />`).join("")}</div>` : ""}
+            ${post.images && post.images.length ? `<div class="photos photos-${Math.min(post.images.length, 4)}">${post.images.map((src) => `<img src="${escapeHtml(src)}" data-full-image="${escapeHtml(src)}" alt="" loading="lazy" />`).join("")}</div>` : ""}
             <div class="post-head">
               <strong>${escapeHtml(post.author || "zhiya & yukiri")}</strong>
               <span>${formatTime(post.createdAt)}</span>

@@ -113,7 +113,7 @@ function createPost(payload) {
   if (!text && !Array.isArray(payload.images)) throw new Error("empty post");
 
   const images = Array.isArray(payload.images)
-    ? payload.images.slice(0, 1).map(saveDataImage).filter(Boolean)
+    ? payload.images.slice(0, 9).map(saveDataImage).filter(Boolean)
     : [];
 
   return {
