@@ -422,9 +422,12 @@
         overflow: hidden;
         white-space: normal;
         color: var(--ink);
-        font-size: 14px;
-        font-weight: 650;
-        line-height: 1.45;
+
+        font-family: inherit;
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 1.5;
+
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
       }
@@ -762,9 +765,11 @@
       <div class="oldweb-layout">
         <aside class="left-rail" aria-label="小站信息">
           <section class="welcome-box">
-            <div class="box-caption">PROFILE ♡</div>
-            <p>原本只是因为小红书的共享帖子模式有bug 所以一气之下！做了个可以把旅游攻略帖子都收藏在一起的网站...</p>
-            <p>不过后来又觉得有点丑+너무 초라해보임...完美主义受不了了 就改成了现在的 想到什么就塞什么的网站惹23333<br />照片也慢慢补...</p>
+            <div class="box-caption">关于这个网站 ♡</div>
+            <p>原本只是yukiri&jia为了去台湾玩，想把看到的攻略、收藏的帖子啥的都丢在一起方便一起看  (´▽｀)ノ☆ 结果没想到小红书那个共享帖子模式一直出bug……气死！！额好歹也是学cs的，学费总不能白交吧= =+那干脆自己试着搓一个网站好了（捏汗）当然中途也少不了chat老师的大力支援www</p>
+            <p>最开始呢，其实就只是个台湾旅游攻略收藏站☆ 可以存帖子/丢攻略/顺便塞点抖音低脂小舞蹈^^ 本来觉得这样就够了<p>
+            <p>但是！！越看越觉得 怎么这么丑啊 + 너무 초라해보이는거임 (；ω；) 完美主义发作...完全忍不了orz 然后就开始东改西改，最后变成了现在这个「想到什么就塞什么进去」的小破站惹 </p>
+            </p>攻略 / 小记 / 照片 / 碎碎念 / 奇怪的小东西…… / 我俩的幸福日常 总之什么都有一点 (｡･ω･｡)ﾉ♡<br /><br />以后想到啥再慢慢补...under construction...</p>
             <div class="tiny-status">● online maybe</div>
             <img class="box-sticker box-cherries" src="assets/stickers/heart-button.png" alt="" aria-hidden="true" />
           </section>
@@ -899,11 +904,12 @@
           </div>
         </form>
         <section class="feed" id="feed" aria-label="动态墙"></section>
+        <button class="diary-more" id="diaryMore" type="button">▼ 显示更多</button>
       </section>
 
       <section class="panel" id="guidesPanel">
         <form class="input-area guide-import" id="guideImportForm">
-          <input id="guideTitle" type="text" maxlength="80" placeholder="攻略标题（不填就用 Word 文件名）" />
+          <input id="guideTitle" type="text" maxlength="80" placeholder="给攻略起个名吧（不填就会直接引用 Word 文件名）" />
           <label class="file-label">
             <input id="guideFile" type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
             选择 .docx
@@ -927,6 +933,12 @@
               </select>
               <button id="guideSave" type="button">保存修改</button>
               <button id="guideDelete" type="button">删除文档</button>
+              <span class="guide-zoom-controls" aria-label="文档显示缩放">
+                <button id="guideZoomOut" type="button" aria-label="缩小文档">-</button>
+                <output id="guideZoomValue">100%</output>
+                <button id="guideZoomIn" type="button" aria-label="放大文档">+</button>
+                <button id="guideZoomFit" type="button">Fit</button>
+              </span>
             </div>
             <div id="guideWordStyles"></div>
             <article class="guide-editor" id="guideEditor" contenteditable="true" spellcheck="true" aria-label="可编辑攻略正文"><p>从左边打开一篇攻略，或在上面导入 .docx 文档。</p></article>
@@ -1060,6 +1072,7 @@
       const postImages = document.querySelector("#postImages");
       const fileName = document.querySelector("#fileName");
       const feed = document.querySelector("#feed");
+      const diaryMore = document.querySelector("#diaryMore");
       const toast = document.querySelector("#toast");
       const dialog = document.querySelector("#dialog");
       const previewCover = document.querySelector("#previewCover");
@@ -1096,6 +1109,15 @@
       const guideFontSize = document.querySelector("#guideFontSize");
       const guideSave = document.querySelector("#guideSave");
       const guideDelete = document.querySelector("#guideDelete");
+      const guideZoomOut = document.querySelector("#guideZoomOut");
+      const guideZoomValue = document.querySelector("#guideZoomValue");
+      const guideZoomIn = document.querySelector("#guideZoomIn");
+      const guideZoomFit = document.querySelector("#guideZoomFit");
+      const guideZoomSteps = [50, 60, 70, 80, 90, 100, 110, 125, 150, 175, 200];
+      let guideZoomPercent = 100;
+      let guideZoomMode = "manual";
+      let diaryVisibleCount = 3;
+      const expandedCommentPosts = new Set();
       let activePreviewId = "";
       let activeGuideId = "";
       const coverRefreshes = new Set();
@@ -1136,6 +1158,14 @@
         guideList.addEventListener("click", handleGuideListClick);
         guideSave.addEventListener("click", saveActiveGuide);
         guideDelete.addEventListener("click", deleteActiveGuide);
+        guideZoomOut.addEventListener("click", () => stepGuideZoom(-1));
+        guideZoomIn.addEventListener("click", () => stepGuideZoom(1));
+        guideZoomFit.addEventListener("click", fitGuideWidth);
+        window.addEventListener("resize", () => {
+          if (guideZoomMode === "fit" && state.activeTab === "guides") {
+            requestAnimationFrame(fitGuideWidth);
+          }
+        });
         document.querySelectorAll("[data-guide-command]").forEach((button) => {
           button.addEventListener("click", () => runGuideCommand(button.dataset.guideCommand));
         });
@@ -1150,6 +1180,8 @@
         });
         homeFeed.addEventListener("click", handlePostClick);
         feed.addEventListener("click", handlePostClick);
+        feed.addEventListener("submit", savePostComment);
+        diaryMore.addEventListener("click", showMoreDiaryPosts);
         imageDialog.addEventListener("click", hideFullImage);
         dialog.addEventListener("click", (event) => {
           if (event.target === dialog) hidePreview();
@@ -1316,10 +1348,42 @@
 
       function setTab(tabName) {
         state.activeTab = tabName;
+        document.body.classList.toggle("guides-mode", tabName === "guides");
         tabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.tab === tabName));
         Object.entries(panels).forEach(([name, panel]) => {
           panel.classList.toggle("active", name === tabName);
         });
+      }
+
+      function setGuideZoom(percent, mode = "manual") {
+        guideZoomPercent = Math.max(50, Math.min(200, percent));
+        guideZoomMode = mode;
+        guideEditor.style.setProperty("--guide-zoom", String(guideZoomPercent / 100));
+        guideZoomValue.textContent = `${Math.round(guideZoomPercent)}%`;
+      }
+
+      function stepGuideZoom(direction) {
+        const candidates = direction > 0
+          ? guideZoomSteps.filter((value) => value > guideZoomPercent)
+          : guideZoomSteps.filter((value) => value < guideZoomPercent).reverse();
+        setGuideZoom(candidates[0] ?? guideZoomPercent);
+      }
+
+      function fitGuideWidth() {
+        setGuideZoom(100, "fit");
+        const page = guideEditor.querySelector("section.docx") ||
+          guideEditor.querySelector(".docx-wrapper");
+        if (!page) return;
+        const availableWidth = Math.max(1, guideEditor.clientWidth - 16);
+        const documentWidth = Math.max(1, page.scrollWidth);
+        setGuideZoom((availableWidth / documentWidth) * 100, "fit");
+        guideEditor.scrollLeft = 0;
+      }
+
+      function resetGuideViewport() {
+        setGuideZoom(100);
+        guideEditor.scrollTop = 0;
+        guideEditor.scrollLeft = 0;
       }
 
       async function saveTravelLink(event) {
@@ -1413,11 +1477,13 @@
             author: (author.value || "zhiya & yukiri").trim().slice(0, 30),
             text: text.slice(0, 10000),
             images: imageUrls,
+            comments: [],
             createdAt: Date.now()
           });
           postText.value = "";
           postImages.value = "";
           fileName.textContent = "最多 9 张";
+          diaryVisibleCount = 3;
           await loadData();
           showToast("已发布");
         } catch (error) {
@@ -1435,11 +1501,29 @@
         travelCount.textContent = `${visibleTravel.length} / ${travel.length} 条`;
         danceCount.textContent = `${dance.length} 条`;
         renderFilters(travel);
-        homeFeed.innerHTML = renderPosts(state.posts.slice(0, 4), "还没有动态。可以先去发一条。", false);
+        homeFeed.innerHTML = renderHomePostPreviews(state.posts.slice(0, 3), "还没有动态。可以先去发一条。");
         homeTravelGrid.innerHTML = renderLinks(travel.slice(0, 4), "还没有旅游攻略。");
         travelGrid.innerHTML = renderLinks(visibleTravel, "这个分类里还没有收藏。");
         danceGrid.innerHTML = renderLinks(dance, "还没有低脂小舞蹈。");
-        feed.innerHTML = renderPosts(state.posts, "还没有动态。可以发文字，也可以发照片。");
+        renderDiaryFeed();
+      }
+
+      function renderDiaryFeed() {
+        feed.innerHTML = renderPosts(
+          state.posts.slice(0, diaryVisibleCount),
+          "还没有动态。可以发文字，也可以发照片。"
+        );
+        diaryMore.hidden = diaryVisibleCount >= state.posts.length;
+      }
+
+      function showMoreDiaryPosts() {
+        const previousCount = diaryVisibleCount;
+        diaryVisibleCount += 3;
+        feed.insertAdjacentHTML(
+          "beforeend",
+          renderPosts(state.posts.slice(previousCount, diaryVisibleCount), "")
+        );
+        diaryMore.hidden = diaryVisibleCount >= state.posts.length;
       }
 
       function renderLinks(items, emptyText) {
@@ -1514,6 +1598,7 @@
             ignoreHeight: true,
             useBase64URL: true
           });
+          resetGuideViewport();
           guideEditor.contentEditable = "true";
           const title = guideTitle.value.trim() || file.name.replace(/\.docx$/i, "");
           const saved = await storeGuideDocument({ title, createNew: true });
@@ -1567,6 +1652,7 @@
         guideTitle.value = guide.title || "";
         applyGuideCss(guide.css || "");
         guideEditor.innerHTML = sanitizeGuideHtml(guide.html || "<p>空文档</p>");
+        resetGuideViewport();
         renderGuideList();
       }
 
@@ -1627,6 +1713,7 @@
         guideTitle.value = "";
         guideWordStyles.replaceChildren();
         guideEditor.innerHTML = "<p>从左边打开一篇攻略，或在上面导入 .docx 文档。</p>";
+        resetGuideViewport();
         renderGuideList();
       }
 
@@ -1638,17 +1725,57 @@
 
       function renderPosts(posts, emptyText, allowDelete = true) {
         if (!posts.length) return `<div class="empty">${emptyText}</div>`;
-        return posts.map((post) => `
-          <article class="post">
-            ${post.images && post.images.length ? `<div class="photos photos-${Math.min(post.images.length, 4)}">${post.images.map((src) => `<img src="${escapeHtml(src)}" data-full-image="${escapeHtml(src)}" alt="" loading="lazy" />`).join("")}</div>` : ""}
+        return posts.map((post) => {
+          const images = Array.isArray(post.images) ? post.images.slice(0, 9) : [];
+          const comments = Array.isArray(post.comments) ? post.comments : [];
+          const visibleComments = expandedCommentPosts.has(post.id) ? comments : comments.slice(0, 3);
+          return `
+          <article class="post diary-post" id="post-${escapeHtml(post.id)}">
             <div class="post-head">
               <strong>${escapeHtml(post.author || "zhiya & yukiri")}</strong>
               <span>${formatTime(post.createdAt)}</span>
             </div>
             ${post.text ? `<p class="post-text">${escapeHtml(post.text)}</p>` : ""}
+            ${images.length ? `<div class="photos photos-${images.length}">${images.map((src) => `<img src="${escapeHtml(src)}" data-full-image="${escapeHtml(src)}" alt="" loading="lazy" />`).join("")}</div>` : ""}
+            <section class="post-comments" aria-label="评论">
+              <div class="comments-title">comments (${comments.length})</div>
+              <div class="comment-list">
+                ${visibleComments.map((comment) => `
+                  <div class="post-comment">
+                    <div><strong>${escapeHtml(comment.author || "anonymous")}</strong> / ${formatTime(comment.createdAt)}</div>
+                    <p>${escapeHtml(comment.text || "")}</p>
+                  </div>
+                `).join("")}
+              </div>
+              ${comments.length > 3 ? `<button class="comments-more" type="button" data-toggle-comments="${escapeHtml(post.id)}">${expandedCommentPosts.has(post.id) ? "收起评论" : "- 查看更多评论"}</button>` : ""}
+              <form class="comment-form" data-comment-post="${escapeHtml(post.id)}">
+                <input class="comment-name" name="commentAuthor" maxlength="30" placeholder="nickname" aria-label="评论昵称" />
+                <textarea class="comment-text" name="commentText" maxlength="1000" rows="1" placeholder="write a comment..." aria-label="评论内容"></textarea>
+                <button type="submit">留言</button>
+              </form>
+            </section>
             ${allowDelete ? `<div class="actions"><button class="delete" type="button" data-delete-post="${escapeHtml(post.id)}">删除</button></div>` : ""}
           </article>
-        `).join("");
+        `;
+        }).join("");
+      }
+
+      function renderHomePostPreviews(posts, emptyText) {
+        if (!posts.length) return `<div class="empty">${emptyText}</div>`;
+        return posts.map((post) => {
+          const images = Array.isArray(post.images) ? post.images : [];
+          const comments = Array.isArray(post.comments) ? post.comments : [];
+          return `
+            <button class="home-post-preview" type="button" data-home-post="${escapeHtml(post.id)}">
+              ${images[0] ? `<img src="${escapeHtml(images[0])}" alt="" loading="lazy" />` : ""}
+              <span class="home-post-copy">
+                <span class="home-post-head"><strong>${escapeHtml(post.author || "zhiya & yukiri")}</strong><time>${formatTime(post.createdAt)}</time></span>
+                <span class="home-post-text">${escapeHtml(post.text || "（照片日记）")}</span>
+                <span class="home-post-meta">${images.length ? `${images.length} photos` : ""}${images.length && comments.length ? " · " : ""}${comments.length ? `♡ ${comments.length} comments` : ""}</span>
+              </span>
+            </button>
+          `;
+        }).join("");
       }
 
       function renderCover(item) {
@@ -1847,10 +1974,62 @@
           return;
         }
 
-        const button = event.target.closest("[data-delete-post]");
-        if (!button) return;
-        await db.collection("posts").doc(button.dataset.deletePost).delete();
+        const homePreview = event.target.closest("[data-home-post]");
+        if (homePreview) {
+          const postIndex = state.posts.findIndex((post) => post.id === homePreview.dataset.homePost);
+          if (postIndex >= 0) diaryVisibleCount = Math.max(3, Math.ceil((postIndex + 1) / 3) * 3);
+          renderDiaryFeed();
+          setTab("feed");
+          requestAnimationFrame(() => {
+            document.getElementById(`post-${homePreview.dataset.homePost}`)?.scrollIntoView({ block: "start" });
+          });
+          return;
+        }
+
+        const commentsButton = event.target.closest("[data-toggle-comments]");
+        if (commentsButton) {
+          const postId = commentsButton.dataset.toggleComments;
+          if (expandedCommentPosts.has(postId)) expandedCommentPosts.delete(postId);
+          else expandedCommentPosts.add(postId);
+          renderDiaryFeed();
+          return;
+        }
+
+        const deleteButton = event.target.closest("[data-delete-post]");
+        if (!deleteButton) return;
+        await db.collection("posts").doc(deleteButton.dataset.deletePost).delete();
         await loadData();
+      }
+
+      async function savePostComment(event) {
+        event.preventDefault();
+        const form = event.target.closest("[data-comment-post]");
+        if (!form) return;
+        const authorValue = form.elements.commentAuthor.value.trim().slice(0, 30) || "anonymous";
+        const textValue = form.elements.commentText.value.trim().slice(0, 1000);
+        if (!textValue) {
+          showToast("评论内容不能为空");
+          return;
+        }
+        const submit = form.querySelector("button[type='submit']");
+        submit.disabled = true;
+        try {
+          await db.collection("posts").doc(form.dataset.commentPost).update({
+            comments: firebase.firestore.FieldValue.arrayUnion({
+              id: `comment-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+              author: authorValue,
+              text: textValue,
+              createdAt: Date.now()
+            })
+          });
+          expandedCommentPosts.add(form.dataset.commentPost);
+          await loadData();
+          showToast("评论已保存");
+        } catch (error) {
+          console.error(error);
+          showToast("评论没存进数据库，再试一次");
+          submit.disabled = false;
+        }
       }
 
       function showFullImage(src) {
