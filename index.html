@@ -699,7 +699,7 @@
       }
     </style>
     <link rel="stylesheet" href="scrapbook.css?v=20260908-2" />
-    <link rel="stylesheet" href="homepage-final.css?v=20260913-1" />
+    <link rel="stylesheet" href="homepage-final.css?v=20260914-1" />
     <script type="module" src="friends-3d.js?v=20260909-3"></script>
   </head>
   <body>
@@ -728,6 +728,7 @@
 
       <main class="site">
       <img class="top-stars" src="assets/stickers/hello-strip.png" alt="" aria-hidden="true" />
+      <button class="about-web-link" id="aboutWebOpen" type="button">click me → about this web ♡</button>
       <div class="masthead"><span><img src="assets/stickers/heart-button.png" alt="" /> yukiri + zhiya ♡ TAIWAN DIARY</span><span>add to favorites ｜ link me ｜ mail</span><span>last update : 26.09.06</span></div>
       <img class="retro-banner" src="assets/stickers/speech-heart.png" alt="" aria-hidden="true" />
       <header>
@@ -899,7 +900,13 @@
               <input id="postImages" type="file" accept="image/*" multiple />
               选照片
             </label>
-            <span class="file-name" id="fileName">最多 9 张</span>
+            <span class="diary-file-state">
+              <span class="file-name" id="fileName">最多 9 张</span>
+              <span class="diary-upload-progress" id="diaryUploadProgress" hidden aria-live="polite">
+                <span class="upload-progress-track"><span id="diaryProgressFill"></span></span>
+                <span id="diaryProgressText">0%</span>
+              </span>
+            </span>
             <button class="primary" type="submit">发布</button>
           </div>
         </form>
@@ -917,7 +924,15 @@
           <span class="file-name" id="guideFileName">尚未选择 Word 文档</span>
           <button class="primary" type="submit">导入</button>
         </form>
-        <div class="status" id="guideStatus">正在读取 Word 文档...</div>
+        <div class="guide-import-progress" id="guideStatus" hidden aria-live="polite">
+          <strong id="guideProgressLabel">导入攻略中</strong>
+          <span class="guide-progress-line">
+            <span class="guide-progress-track"><span id="guideProgressFill"></span></span>
+            <span id="guideProgressValue">0%</span>
+          </span>
+          <span id="guideProgressDetail">准备导入...</span>
+        </div>
+        <p class="guide-import-help">※ 使用方法：先点「选择.docx」选择要导入的文档 → 然后点「导入」并等待完成 → 修改文档内容 → 点「保存修改」</p>
         <div class="guide-layout">
           <aside class="guide-list" id="guideList" aria-label="攻略文档列表"></aside>
           <section class="guide-workspace">
@@ -1006,6 +1021,50 @@
       <img id="fullImage" alt="完整图片" />
     </div>
 
+    <div class="about-web-modal" id="aboutWebModal" aria-hidden="true">
+      <article class="about-web-popup" role="dialog" aria-modal="true" aria-labelledby="aboutWebTitle">
+        <button class="about-web-close" id="aboutWebClose" type="button" aria-label="关闭 about this web">×</button>
+        <div class="about-web-scroll">
+          <h2 id="aboutWebTitle">:: about this web ::</h2>
+          <p>小时候其实挺喜欢看书。妈妈总会给我买各种各样的童话故事和文学作品。那时候当然没有想过什么“培养阅读习惯”只是一本一本地看。也不知道从什么时候开始 连 4399 都不怎么打开了。现在想起来还有点好笑 小时候居然能为了看书把小游戏戒掉 这种自制力后来好像再也没有出现过。嗯嗯。</p>
+          <p>小学的时候有一个朋友 她也很爱看书。她五六年级的时候就已经开始看《三体》了 我当然看不懂 只觉得她说起那些东西的时候很认真。小孩子之间的影响大概就是这样 你未必真的明白对方在说什么 却会因为她很认真地喜欢一件事 也跟着觉得这件事应该很好。</p>
+          <p>渐渐地我也喜欢写作文了。我很喜欢往里面塞自己的想法 想到什么就写什么 有时候甚至会写一些跟题目关系没有特别大的东西 可我当时并不觉得这有什么问题。那时候好像从来没有怀疑过 “我怎么想”本身就是可以写进去的。</p>
+          <p>后来上了高中，作文慢慢变成了另一回事。题目越来越大 文章也越来越宏伟。总有人经历挫折以后重新站起来 总有人最后明白一个道理 句子漂亮 立意正确 结尾最好还能再往上提一点。</p>
+          <p>看多了以后 我发现自己写不过这些东西了。于是也开始背。</p>
+          <p>有一次期末考试 题目刚好撞上了我背得滚瓜烂熟的一篇红色爱国主题作文。我几乎没怎么改 差不多就是一字不漏地默写了下来。</p>
+          <p>分数很好。那次我的语文甚至考了班级第一。我记得自己当时是真的很高兴。</p>
+          <p>后来语文老师在班里说 这次作文题简单 有些人才考得高 不要真以为是自己的实力。</p>
+          <p>这句话我到现在都还记得。也许他早就忘了 也许他那时候根本不是专门在说我 可十几岁的时候 自尊心确实是个很薄又很锋利的东西。</p>
+          <p>我当时特别生气。最烦的是 我还没法完全反驳因为我自己也知道 那确实不是我的文章。</p>
+          <p>后来我越来越不喜欢语文。准确地说 是有点讨厌那个已经离开模板就不知道该写什么的自己。明明以前什么都敢往作文里塞 后来写东西的时候 却总会先想这句话够不够正确 这个结尾像不像一篇“好作文”。</p>
+          <p>再后来上了大学 为了就业选了计算机。这个决定我平时当然没少嫌弃 有时候甚至会觉得自己当初到底为什么要给自己找这种罪受。不过代码也有它自己的好处 它至少很直接。能不能run起来 哪里错了 最好还能准确告诉你是第几行出了问题。</p>
+          <p>生活就没这么省事。今天为什么突然有点难过 为什么一句很普通的话会记很久 为什么只是和朋友吃了一顿饭 回家以后却会觉得那天好像过得特别好。这些东西没有error信息 也没地方提交。</p>
+          <p>所以很长一段时间里 我都没再认真写过什么。</p>
+          <p>上大学以后 生活也慢慢变得特别具体。上课作业考试绩点实习毕业找工作。</p>
+          <p>事情一件接一件 刚解决一个 后面又有下一个。人如果一直这样往前赶 很容易只顾着看下一步至于刚刚经过了什么 常常也没空回头想。</p>
+          <p>直到后来去了台湾。</p>
+          <p>现在再想 我喜欢的或许也不只是台湾本身 而是那种在那里走着走着 会突然开始注意生活的感觉。骑楼（这两天才知道原来那叫骑楼哈哈）下面的光一块一块落下来 旧房子的墙有点褪色 巷口摆着几盆植物 招牌不新却很好看。有时候只是有人说话轻一点 给你让路的时候多停半步也会让人觉得舒服。这些都不算什么特别大的事。可我在那里反而重新开始注意这些小东西了。</p>
+          <p>台湾当然没有改变我的人生。</p>
+          <p>回来以后我还是要上课 还是得写作业 还是要操心毕业和找工作 该烦的事情一个也没少。只是有一点东西好像被重新捡回来了。我突然又开始想写。想记下一条街 记一顿饭 记朋友随口说的一句话。甚至某一天收到一句“嘎哈呢，你是不心情不好”，也会觉得原来这么普通的一句话也能让人记挺久。</p>
+          <p>以前我总觉得值得写下来的东西应该很重要。最好有意义 最好最后还能落到一个漂亮的结尾。可能高中作文写多了 多少还是留下了一点后遗症。</p>
+          <p>后来才慢慢发现 其实很多真正会记很久的东西都没什么大道理。这些事情发生的时候都很普通 普通到你根本不会想到原来自己以后真的会忘。</p>
+          <p>可人就是会忘。有些以前觉得绝对不会忘的事情 过几年也只剩下一点模糊的轮廓。有些话当时记得很清楚 后来也只剩一个大概。</p>
+          <p>所以后来做这个网站的时候 一开始真的只是想存攻略。改着改着 攻略有了 照片有了 朋友的留言也被我放了进来 最后就变成了现在这个不太好分类的小破站。</p>
+          <p>我后来反而很喜欢它这样。因为生活本来也没有那么好分类。</p>
+          <p>有些事情值得写很长 有些事情只有一句话；有些照片拍得很好 有些照片只是因为当时舍不得删。它们放在一起看起来有点乱但也比较像真的生活。</p>
+          <p>说起来也挺好笑的。小时候因为看书喜欢上写东西 后来因为作文 反而越来越不想写。大学又选了一个自己平时没少嫌弃的专业 结果最后居然还是靠这个专业给自己做出了一个可以继续写东西的地方。</p>
+          <p>这么想学费确实也没有完全白交。</p>
+          <p>现在我不太想再写什么辉煌的人物了 也不太想急着替生活总结什么。我更想记住一些平时不会专门去记的东西。</p>
+          <p>比如和朋友走过哪条街 在哪家店吃过什么 谁当时随口说了句什么 哪一天心情很好 又是哪一天其实不太开心 只是后来也就过去了。这些东西不会出现在履历里 也不会留下什么正式记录。可过一阵子以后偏偏就是这些最容易先消失。</p>
+          <p>所以这个网站现在对我来说大概也不只是“存东西”的地方了 更像是给生活随手做一点备份。</p>
+          <p>照片也好文字也好一句没头没尾的话也好先丢在这里再说。</p>
+          <p>以后哪天再翻到 也许我已经记不清那天具体发生了什么 只会突然觉得 哦 原来那时候我来过这里 原来她当时坐在我对面 原来这句话我真的记了很久。</p>
+          <p>这样其实就够了。反正人的记性本来就不太可靠 生活已经那么容易被忘记了。总要有东西替我记得我曾经这样活过 也这样爱过一些很小的东西。</p>
+          <p>能有个小网站替我多记一点，也挺好。</p>
+        </div>
+      </article>
+    </div>
+
     <div class="toast" id="toast">已保存</div>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
@@ -1071,6 +1130,9 @@
       const postText = document.querySelector("#postText");
       const postImages = document.querySelector("#postImages");
       const fileName = document.querySelector("#fileName");
+      const diaryUploadProgress = document.querySelector("#diaryUploadProgress");
+      const diaryProgressFill = document.querySelector("#diaryProgressFill");
+      const diaryProgressText = document.querySelector("#diaryProgressText");
       const feed = document.querySelector("#feed");
       const diaryMore = document.querySelector("#diaryMore");
       const toast = document.querySelector("#toast");
@@ -1083,6 +1145,9 @@
       const previewClose = document.querySelector("#previewClose");
       const imageDialog = document.querySelector("#imageDialog");
       const fullImage = document.querySelector("#fullImage");
+      const aboutWebOpen = document.querySelector("#aboutWebOpen");
+      const aboutWebModal = document.querySelector("#aboutWebModal");
+      const aboutWebClose = document.querySelector("#aboutWebClose");
       const bgmPlayer = document.querySelector("#bgmPlayer");
       const bgmTitle = document.querySelector("#bgmTitle");
       const bgmPrev = document.querySelector("#bgmPrev");
@@ -1102,6 +1167,10 @@
       const guideFile = document.querySelector("#guideFile");
       const guideFileName = document.querySelector("#guideFileName");
       const guideStatus = document.querySelector("#guideStatus");
+      const guideProgressLabel = document.querySelector("#guideProgressLabel");
+      const guideProgressFill = document.querySelector("#guideProgressFill");
+      const guideProgressValue = document.querySelector("#guideProgressValue");
+      const guideProgressDetail = document.querySelector("#guideProgressDetail");
       const guideList = document.querySelector("#guideList");
       const guideEditor = document.querySelector("#guideEditor");
       const guideWordStyles = document.querySelector("#guideWordStyles");
@@ -1120,6 +1189,8 @@
       const expandedCommentPosts = new Set();
       let activePreviewId = "";
       let activeGuideId = "";
+      let guideImportInProgress = false;
+      let guideImportRunId = 0;
       const coverRefreshes = new Set();
 
       init();
@@ -1153,6 +1224,7 @@
         });
         guideFile.addEventListener("change", () => {
           guideFileName.textContent = guideFile.files[0]?.name || "尚未选择 Word 文档";
+          guideTitle.value = "";
         });
         guideImportForm.addEventListener("submit", importGuideDocument);
         guideList.addEventListener("click", handleGuideListClick);
@@ -1183,6 +1255,11 @@
         feed.addEventListener("submit", savePostComment);
         diaryMore.addEventListener("click", showMoreDiaryPosts);
         imageDialog.addEventListener("click", hideFullImage);
+        aboutWebOpen.addEventListener("click", showAboutWeb);
+        aboutWebClose.addEventListener("click", hideAboutWeb);
+        aboutWebModal.addEventListener("click", (event) => {
+          if (event.target === aboutWebModal) hideAboutWeb();
+        });
         dialog.addEventListener("click", (event) => {
           if (event.target === dialog) hidePreview();
         });
@@ -1207,6 +1284,7 @@
           if (event.key === "Escape") {
             hidePreview();
             hideFullImage();
+            hideAboutWeb();
           }
         });
 
@@ -1470,9 +1548,23 @@
           return;
         }
 
-        postForm.querySelector("button[type='submit']").disabled = true;
+        const submitButton = postForm.querySelector("button[type='submit']");
+        submitButton.disabled = true;
+        let diaryProgress = 0;
         try {
-          const imageUrls = files.length ? await Promise.all(files.map(uploadToCloudinary)) : [];
+          const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
+          const loadedBytes = files.map(() => 0);
+          if (files.length) setDiaryUploadProgress(0, "uploading");
+          const imageUrls = files.length ? await Promise.all(files.map((file, index) =>
+            uploadToCloudinary(file, ({ loaded, total }) => {
+              const fileLoaded = total > 0 ? Math.min(file.size, (loaded / total) * file.size) : 0;
+              loadedBytes[index] = Math.max(loadedBytes[index], fileLoaded);
+              const totalLoaded = loadedBytes.reduce((sum, value) => sum + value, 0);
+              diaryProgress = Math.max(diaryProgress, totalBytes ? Math.floor((totalLoaded / totalBytes) * 100) : 0);
+              setDiaryUploadProgress(Math.min(99, diaryProgress), "uploading");
+            })
+          )) : [];
+          if (files.length) setDiaryUploadProgress(99, "saving");
           await db.collection("posts").add({
             author: (author.value || "zhiya & yukiri").trim().slice(0, 30),
             text: text.slice(0, 10000),
@@ -1485,13 +1577,35 @@
           fileName.textContent = "最多 9 张";
           diaryVisibleCount = 3;
           await loadData();
+          if (files.length) {
+            setDiaryUploadProgress(100, "success");
+            await delay(800);
+            diaryUploadProgress.hidden = true;
+          }
           showToast("已发布");
         } catch (error) {
           console.error(error);
+          if (files.length) {
+            setDiaryUploadProgress(diaryProgress, "failed");
+            await delay(1200);
+            diaryUploadProgress.hidden = true;
+          }
           showToast(files.length ? "日记或图片没传上，再试一次" : "日记没发布成功，再试一次");
         } finally {
-          postForm.querySelector("button[type='submit']").disabled = false;
+          submitButton.disabled = false;
         }
+      }
+
+      function setDiaryUploadProgress(percent, stateName) {
+        const safePercent = Math.max(0, Math.min(100, Math.round(percent)));
+        diaryUploadProgress.hidden = false;
+        diaryUploadProgress.dataset.state = stateName;
+        diaryProgressFill.style.width = `${safePercent}%`;
+        diaryProgressText.textContent = stateName === "failed" ? "上传失败" : `${safePercent}%`;
+      }
+
+      function delay(milliseconds) {
+        return new Promise((resolve) => setTimeout(resolve, milliseconds));
       }
 
       function render() {
@@ -1575,6 +1689,7 @@
 
       async function importGuideDocument(event) {
         event.preventDefault();
+        if (guideImportInProgress) return;
         const file = guideFile.files[0];
         if (!file) {
           showToast("先选择一个 .docx 文件");
@@ -1585,12 +1700,18 @@
           return;
         }
 
-        guideStatus.classList.add("show");
-        guideImportForm.querySelector("button[type='submit']").disabled = true;
-        guideEditor.replaceChildren();
-        guideWordStyles.replaceChildren();
+        const runId = ++guideImportRunId;
+        const title = guideTitle.value.trim() || file.name.replace(/\.docx$/i, "");
+        const tempEditor = document.createElement("div");
+        const tempStyles = document.createElement("div");
+        setGuideImportBusy(true);
+        setGuideImportProgress({
+          label: "导入攻略中",
+          detail: "正在解析 Word...",
+          indeterminate: true
+        });
         try {
-          await window.docx.renderAsync(file, guideEditor, guideWordStyles, {
+          await window.docx.renderAsync(file, tempEditor, tempStyles, {
             className: "docx",
             inWrapper: true,
             breakPages: false,
@@ -1598,52 +1719,122 @@
             ignoreHeight: true,
             useBase64URL: true
           });
-          resetGuideViewport();
-          guideEditor.contentEditable = "true";
-          const title = guideTitle.value.trim() || file.name.replace(/\.docx$/i, "");
-          const saved = await storeGuideDocument({ title, createNew: true });
+          if (runId !== guideImportRunId) return;
+          setGuideImportProgress({
+            percent: 35,
+            label: "导入攻略中",
+            detail: "Word 解析完成，正在检查图片..."
+          });
+          await persistGuideImages(tempEditor, ({ completed, totalImages, loaded, totalBytes }) => {
+            if (runId !== guideImportRunId) return;
+            const imageRatio = totalBytes ? loaded / totalBytes : 1;
+            setGuideImportProgress({
+              percent: 35 + imageRatio * 55,
+              label: "导入攻略中",
+              detail: `正在上传文档图片 ${Math.min(completed + 1, totalImages)} / ${totalImages}`
+            });
+          });
+          if (runId !== guideImportRunId) return;
+
+          const payload = buildGuidePayload(tempEditor, tempStyles, title);
+          payload.createdAt = Date.now();
+          setGuideImportProgress({
+            percent: 95,
+            label: "导入攻略中",
+            detail: "正在保存攻略..."
+          });
+          const saved = await db.collection("guideDocs").add(payload);
+          if (runId !== guideImportRunId) return;
+
           activeGuideId = saved.id;
+          guideEditor.innerHTML = payload.html;
+          applyGuideCss(payload.css);
           guideTitle.value = title;
+          guideFile.value = "";
+          guideFileName.textContent = "尚未选择 Word 文档";
+          guideEditor.contentEditable = "true";
+          state.guides = [{ id: saved.id, ...payload }, ...state.guides.filter((guide) => guide.id !== saved.id)];
+          resetGuideViewport();
           renderGuideList();
+          setGuideImportProgress({
+            percent: 100,
+            label: "导入完成",
+            detail: "攻略已经保存，可以继续修改"
+          });
           showToast("攻略已导入，可以直接编辑");
+          await delay(800);
+          if (runId === guideImportRunId) guideStatus.hidden = true;
         } catch (error) {
           console.error(error);
+          if (runId !== guideImportRunId) return;
+          setGuideImportProgress({
+            percent: 0,
+            label: "导入失败，请重试",
+            detail: error.message.includes("too large") ? "文档太大，请压缩图片后再导入" : "Word 解析、图片上传或保存没有完成",
+            failed: true
+          });
           showToast(error.message.includes("too large") ? "文档太大，请压缩图片后再导入" : "这个 Word 文档没有读取成功");
         } finally {
-          guideStatus.classList.remove("show");
-          guideImportForm.querySelector("button[type='submit']").disabled = false;
+          if (runId === guideImportRunId) setGuideImportBusy(false);
         }
       }
 
-      async function storeGuideDocument({ title, createNew = false } = {}) {
-        await persistGuideImages();
+      function buildGuidePayload(rootElement, stylesElement, title) {
         const payload = {
-          title: (title || guideTitle.value.trim() || "未命名攻略").slice(0, 80),
-          html: sanitizeGuideHtml(guideEditor.innerHTML),
-          css: readGuideCss(),
+          title: (title || "未命名攻略").slice(0, 80),
+          html: sanitizeGuideHtml(rootElement.innerHTML),
+          css: readGuideCss(stylesElement),
           updatedAt: Date.now()
         };
         if (new Blob([payload.html, payload.css]).size > 850000) throw new Error("document is too large for Firestore");
-        if (createNew || !activeGuideId) {
-          payload.createdAt = Date.now();
-          return db.collection("guideDocs").add(payload);
-        }
-        await db.collection("guideDocs").doc(activeGuideId).update(payload);
-        return { id: activeGuideId };
+        return payload;
       }
 
-      async function persistGuideImages() {
-        const images = Array.from(guideEditor.querySelectorAll('img[src^="data:"]'));
+      async function updateActiveGuideDocument() {
+        await persistGuideImages(guideEditor);
+        const payload = buildGuidePayload(guideEditor, guideWordStyles, guideTitle.value.trim());
+        await db.collection("guideDocs").doc(activeGuideId).update(payload);
+      }
+
+      async function persistGuideImages(rootElement, onProgress = null) {
+        const images = Array.from(rootElement.querySelectorAll('img[src^="data:"]'));
+        const pending = [];
         for (let index = 0; index < images.length; index += 1) {
           const response = await fetch(images[index].src);
           const blob = await response.blob();
           const extension = blob.type.includes("png") ? "png" : blob.type.includes("gif") ? "gif" : "jpg";
-          const file = new File([blob], `guide-${Date.now()}-${index}.${extension}`, { type: blob.type });
-          images[index].src = await uploadToCloudinary(file);
+          pending.push({
+            image: images[index],
+            file: new File([blob], `guide-${Date.now()}-${index}.${extension}`, { type: blob.type })
+          });
+        }
+        const totalBytes = pending.reduce((sum, item) => sum + item.file.size, 0);
+        let completedBytes = 0;
+        for (let index = 0; index < pending.length; index += 1) {
+          const item = pending[index];
+          let currentLoaded = 0;
+          item.image.src = await uploadToCloudinary(item.file, ({ loaded, total }) => {
+            const nextLoaded = total > 0 ? Math.min(item.file.size, (loaded / total) * item.file.size) : 0;
+            currentLoaded = Math.max(currentLoaded, nextLoaded);
+            onProgress?.({
+              completed: index,
+              totalImages: pending.length,
+              loaded: completedBytes + currentLoaded,
+              totalBytes
+            });
+          });
+          completedBytes += item.file.size;
+          onProgress?.({
+            completed: index + 1,
+            totalImages: pending.length,
+            loaded: completedBytes,
+            totalBytes
+          });
         }
       }
 
       function handleGuideListClick(event) {
+        if (guideImportInProgress) return;
         const button = event.target.closest("[data-guide-id]");
         if (!button) return;
         const guide = state.guides.find((item) => item.id === button.dataset.guideId);
@@ -1656,8 +1847,8 @@
         renderGuideList();
       }
 
-      function readGuideCss() {
-        return Array.from(guideWordStyles.querySelectorAll("style"), (style) => style.textContent || "").join("\n");
+      function readGuideCss(rootElement = guideWordStyles) {
+        return Array.from(rootElement.querySelectorAll("style"), (style) => style.textContent || "").join("\n");
       }
 
       function applyGuideCss(css) {
@@ -1684,14 +1875,36 @@
         return template.innerHTML;
       }
 
+      function setGuideImportBusy(isBusy) {
+        guideImportInProgress = isBusy;
+        guideImportForm.querySelector("button[type='submit']").disabled = isBusy;
+        guideFile.disabled = isBusy;
+        guideSave.disabled = isBusy;
+        guideDelete.disabled = isBusy;
+        guideList.classList.toggle("is-disabled", isBusy);
+        guideList.setAttribute("aria-disabled", String(isBusy));
+      }
+
+      function setGuideImportProgress({ percent = 0, label, detail, indeterminate = false, failed = false }) {
+        const safePercent = Math.max(0, Math.min(100, Math.round(percent)));
+        guideStatus.hidden = false;
+        guideStatus.classList.toggle("is-indeterminate", indeterminate);
+        guideStatus.classList.toggle("is-failed", failed);
+        guideProgressLabel.textContent = label;
+        guideProgressDetail.textContent = detail;
+        guideProgressValue.textContent = indeterminate ? "..." : `${safePercent}%`;
+        guideProgressFill.style.width = indeterminate ? "" : `${safePercent}%`;
+      }
+
       async function saveActiveGuide() {
+        if (guideImportInProgress) return;
         if (!activeGuideId) {
           showToast("先导入或打开一篇攻略");
           return;
         }
         guideSave.disabled = true;
         try {
-          await storeGuideDocument();
+          await updateActiveGuideDocument();
           showToast("攻略修改已保存");
         } catch (error) {
           console.error(error);
@@ -1702,6 +1915,7 @@
       }
 
       async function deleteActiveGuide() {
+        if (guideImportInProgress) return;
         if (!activeGuideId || !confirm("确定删除这篇攻略文档吗？")) return;
         await db.collection("guideDocs").doc(activeGuideId).delete();
         clearGuideEditor();
@@ -2047,6 +2261,17 @@
         fullImage.removeAttribute("src");
       }
 
+      function showAboutWeb() {
+        aboutWebModal.classList.add("show");
+        aboutWebModal.setAttribute("aria-hidden", "false");
+        aboutWebClose.focus();
+      }
+
+      function hideAboutWeb() {
+        aboutWebModal.classList.remove("show");
+        aboutWebModal.setAttribute("aria-hidden", "true");
+      }
+
       function showPreview(item) {
         previewCover.innerHTML = renderCover(item);
         previewTitle.textContent = item.title;
@@ -2075,20 +2300,44 @@
         formElement.querySelector("button").disabled = isBusy;
       }
 
-      async function uploadToCloudinary(file) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", cloudinaryConfig.uploadPreset);
-        formData.append("folder", "taiwan-memory");
-        const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`, {
-          method: "POST",
-          body: formData
+      function uploadToCloudinary(file, onProgress = null) {
+        return new Promise((resolve, reject) => {
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("upload_preset", cloudinaryConfig.uploadPreset);
+          formData.append("folder", "taiwan-memory");
+
+          const xhr = new XMLHttpRequest();
+          xhr.open("POST", `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`);
+          xhr.timeout = 120000;
+          if (onProgress) {
+            xhr.upload.addEventListener("progress", (event) => {
+              onProgress({
+                loaded: event.loaded,
+                total: event.lengthComputable ? event.total : 0,
+                percent: event.lengthComputable && event.total ? (event.loaded / event.total) * 100 : 0
+              });
+            });
+          }
+          xhr.addEventListener("load", () => {
+            let data;
+            try {
+              data = JSON.parse(xhr.responseText || "{}");
+            } catch {
+              reject(new Error("cloudinary returned invalid data"));
+              return;
+            }
+            if (xhr.status < 200 || xhr.status >= 300 || !data.secure_url) {
+              reject(new Error(data.error?.message || "cloudinary upload failed"));
+              return;
+            }
+            resolve(data.secure_url);
+          });
+          xhr.addEventListener("error", () => reject(new Error("cloudinary network error")));
+          xhr.addEventListener("abort", () => reject(new Error("cloudinary upload aborted")));
+          xhr.addEventListener("timeout", () => reject(new Error("cloudinary upload timed out")));
+          xhr.send(formData);
         });
-        const data = await response.json();
-        if (!response.ok || !data.secure_url) {
-          throw new Error(data.error && data.error.message ? data.error.message : "cloudinary upload failed");
-        }
-        return data.secure_url;
       }
 
       async function cacheCoverToCloudinary(coverUrl, title) {
@@ -2163,10 +2412,10 @@
         clearTimeout(showToast.timer);
         showToast.timer = setTimeout(() => toast.classList.remove("show"), 1400);
       }
-      
+
       function cloudinaryDisplayUrl(url) {
         const value = String(url || "");
-        if (!/res\.cloudinary\.com/i.test(value)) return value;  
+        if (!/res\.cloudinary\.com/i.test(value)) return value;
         if (value.includes("/upload/f_auto,q_auto/")) return value;
 
         return value.replace(
