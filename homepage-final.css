@@ -1147,6 +1147,47 @@ header {
   font: 7px/1.2 Tahoma, Arial, sans-serif;
 }
 
+.diary-file-state {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+}
+.diary-file-state .file-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.diary-upload-progress {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 3px;
+  font: 8px Tahoma, Arial, sans-serif;
+}
+.diary-upload-progress[hidden] { display: none !important; }
+.upload-progress-track {
+  display: block;
+  width: 100px;
+  height: 9px;
+  padding: 1px;
+  border: 1px inset #bb8ba0;
+  background: #fff;
+}
+.upload-progress-track > span {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: #e987ad;
+}
+.diary-upload-progress[data-state="failed"] {
+  color: #a00032;
+}
+.diary-upload-progress[data-state="failed"] .upload-progress-track > span {
+  background: #b94d68;
+}
+
 /* Word guide archive: compact, plain old-web controls. */
 .tabs .nav-guides { margin-left: 2px; border: 1px outset #c7c7c7; background: #e9e9e9; }
 .guide-import {
@@ -1158,6 +1199,71 @@ header {
   grid-template-columns: 155px minmax(0, 1fr);
   gap: 5px;
   align-items: start;
+}
+.guide-import-progress {
+  display: grid;
+  grid-template-columns: 100px minmax(0, 1fr);
+  gap: 3px 7px;
+  box-sizing: border-box;
+  width: calc(100% - 8px);
+  margin: 2px 4px;
+  padding: 4px 6px;
+  border: 1px inset #ce8ba7;
+  border-radius: 0;
+  background: #fff1f6;
+  color: #6e4c5b;
+  font: 11px/1.3 Tahoma, var(--old-chinese);
+}
+.guide-import-progress[hidden] { display: none !important; }
+.guide-import-progress strong { color: #a84670; font-size: 11px; }
+.guide-progress-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.guide-progress-track {
+  display: block;
+  flex: 1 1 auto;
+  height: 11px;
+  padding: 1px;
+  border: 1px inset #b87d96;
+  background: #fff;
+  overflow: hidden;
+}
+.guide-progress-track > span {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: #df78a1;
+}
+.guide-import-progress.is-indeterminate .guide-progress-track > span {
+  width: 24%;
+  animation: guide-progress-scan 1s steps(8, end) infinite;
+}
+.guide-import-progress.is-failed {
+  border-color: #a75165;
+  color: #8d203c;
+  background: #fff0f0;
+}
+.guide-import-progress.is-failed .guide-progress-track > span { background: #b94d68; }
+#guideProgressDetail { grid-column: 1 / -1; }
+.guide-import-help {
+  box-sizing: border-box;
+  width: calc(100% - 8px);
+  margin: 2px 4px 4px;
+  padding: 3px 5px;
+  border: 1px dotted #d591ad;
+  background: #fff8d9;
+  color: #744f5e;
+  font: 11px/1.35 var(--old-chinese);
+}
+.guide-list.is-disabled {
+  pointer-events: none;
+  opacity: .65;
+}
+@keyframes guide-progress-scan {
+  from { transform: translateX(-110%); }
+  to { transform: translateX(430%); }
 }
 .guide-list { border: 1px dashed #d47d9f; background: #fff8fb; padding: 3px; }
 .guide-list-item {
@@ -1242,6 +1348,85 @@ body.guides-mode .guide-editor {
   overscroll-behavior: contain;
 }
 body.guides-mode .guide-editor .docx-wrapper { zoom: var(--guide-zoom, 1); }
+
+.about-web-link {
+  position: absolute;
+  top: 23px;
+  right: -145px;
+  z-index: 30;
+  width: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #b34f7c;
+  font: 11px/1.2 Tahoma, "MS Gothic", Arial, sans-serif;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.about-web-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background: rgba(255, 246, 250, .7);
+}
+.about-web-modal.show { display: flex; }
+.about-web-popup {
+  position: relative;
+  width: min(735px, 96vw, 140vh);
+  aspect-ratio: 735 / 502;
+  margin: 0;
+  overflow: hidden;
+  background: url("assets/about-web-frame.jpeg") center / contain no-repeat;
+}
+.about-web-scroll {
+  position: absolute;
+  left: 20%;
+  top: 19%;
+  width: 59%;
+  height: 45%;
+  box-sizing: border-box;
+  padding: 4px 9px 8px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  color: #55484d;
+  font: 13px/1.7 var(--old-chinese);
+  scrollbar-color: #e790b4 #e8fff8;
+}
+.about-web-scroll h2 {
+  margin: 0 0 7px;
+  color: #a64e76;
+  font: normal 12px/1.4 Tahoma, var(--old-chinese);
+  text-align: center;
+  letter-spacing: 0;
+}
+.about-web-scroll p {
+  margin: 0 0 10px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.about-web-close {
+  position: absolute;
+  top: 4%;
+  right: 4%;
+  z-index: 2;
+  width: 22px;
+  height: 20px;
+  min-height: 0;
+  padding: 0;
+  border: 1px outset #d9a4b8;
+  border-radius: 0;
+  background: #fff4f7;
+  color: #9b4168;
+  font: bold 13px/16px Tahoma, Arial, sans-serif;
+  cursor: pointer;
+}
 @media (min-width: 701px) {
   body.guides-mode .oldweb-layout {
     grid-template-columns: 148px minmax(0, 1fr) !important;
@@ -1257,6 +1442,32 @@ body.guides-mode .guide-editor .docx-wrapper { zoom: var(--guide-zoom, 1); }
     height: 68vh;
     min-height: 420px;
     max-height: 700px;
+  }
+  .diary-file-state {
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+  .upload-progress-track { width: 76px; }
+  .guide-import-progress { grid-template-columns: 1fr; }
+  #guideProgressDetail { grid-column: auto; }
+  .about-web-link {
+    top: 22px;
+    right: 5px;
+    font-size: 7px;
+  }
+  .about-web-scroll {
+    padding: 2px 5px 5px;
+    font-size: 11px;
+    line-height: 1.6;
+  }
+  .about-web-scroll h2 {
+    margin-bottom: 4px;
+    font-size: 10px;
+  }
+  .about-web-scroll p { margin-bottom: 7px; }
+  .about-web-close {
+    width: 24px;
+    height: 22px;
   }
 }
 .welcome-box .box-cherries {
