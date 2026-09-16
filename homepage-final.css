@@ -61,11 +61,13 @@ button { font-family: var(--old-chinese); }
 .bgm,
 .site-footer { font-family: var(--old-ui) !important; }
 .header-copy h1 {
-  font-family: var(--display-title) !important;
+  font-family: "Courier New", "MS Gothic", monospace !important;
   font-size: 34px !important;
-  font-weight: 400 !important;
+  font-weight: 600 !important;
   letter-spacing: 0 !important;
   text-shadow: 2px 2px 0 #fff !important;
+  transform: translateY(4px) scale(1.12);
+  transform-origin: left top;
 }
 .header-copy .title-note {
   font-family: "MS Gothic", Tahoma, Arial, sans-serif !important;
