@@ -1,0 +1,210 @@
+@import url("https://cdn.jsdelivr.net/npm/@fontsource/fusion-pixel-12px-proportional-sc@5.3.0/400.css");
+@import url("https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=ZCOOL+KuaiLe&display=swap");
+
+/* =========================================================
+   y2k-unify.css — a THIN layer on top of the original design.
+   The original colours, fonts and box styles stay as they were;
+   this file only holds the changes that were asked for:
+   street intro, tidier header, player first on home,
+   readable sizes, and a few candy stickers.
+   ========================================================= */
+
+
+/* decorations that poke out must not widen the page on phones */
+html, html body { overflow-x: clip !important; }
+html body .page-shell { overflow-x: clip; max-width: 100%; }
+
+/* ---------- readable sizes where the old rules went tiny ---------- */
+html body .card .title { font-size: 12px !important; line-height: 1.4 !important; }
+html body .guestbook-entries, html body .guestbook-entries * { font-size: 11px !important; line-height: 1.5 !important; }
+
+/* ---------- header: whole stickers only, bigger room ---------- */
+@media (min-width: 761px) {
+  html body header .header-room-sticker { right: -26px !important; top: -48px !important; width: 252px !important; height: 252px !important; object-fit: contain !important; }
+  html body header .header-art { left: 470px !important; }
+  html body header .scribble { display: none !important; }
+}
+/* "about this web" sits in the top bar, styled like the other masthead text */
+html body .masthead .readme-tag {
+  position: static !important; display: inline !important;
+  width: auto !important; height: auto !important; min-height: 0 !important;
+  margin: 0 !important; padding: 0 !important;
+  font: inherit !important; color: #b34f7c !important;
+  background: none !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important;
+  transform: none !important; cursor: pointer;
+  text-decoration: underline !important; text-underline-offset: 2px;
+}
+html body .masthead .readme-tag:hover { color: #e2588f !important; }
+
+/* ---------- home: music player + guestbook on the first row ---------- */
+@media (min-width: 761px) {
+  html body #homePanel.active #bgmPlayer         { grid-row: 1 !important; align-self: start !important; }
+  html body #homePanel.active .guestbook-box     { grid-row: 1 !important; align-self: start !important; }
+  html body #homePanel.active .updates-block     { grid-row: 2 !important; }
+  html body #homePanel.active .travel-block      { grid-row: 2 !important; }
+  html body #homePanel.active .random-memory-box { grid-row: 3 !important; }
+  html body #homePanel.active .mini-archive-box  { grid-row: 3 !important; }
+}
+
+/* ---------- about box: short by default, "展开" to read all ---------- */
+html body .welcome-box { position: relative !important; }
+html body .welcome-box.is-clamped { max-height: 360px !important; overflow: hidden !important; }
+html body .welcome-box.is-clamped::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 56px; pointer-events: none;
+  background: linear-gradient(rgba(255, 245, 250, 0), #fff5fa 70%);
+}
+html body .about-more {
+  position: absolute; z-index: 2; left: 50%; bottom: 6px; transform: translateX(-50%);
+  font: 11px Verdana, Tahoma, sans-serif !important; color: #b34f7c !important;
+  background: #fff !important; border: 1px dashed #e978a7 !important; padding: 1px 8px !important; cursor: pointer;
+}
+html body .welcome-box:not(.is-clamped) .about-more { position: static; transform: none; display: block; margin: 6px auto 0; }
+
+/* =========================================================
+   STREET INTRO — just the picture; dashed outline on hover
+   ========================================================= */
+.street-intro {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(#fde7fe 0 50%, #d4d0d1 50% 100%);
+  overflow: hidden; transition: opacity .3s ease;
+}
+.street-intro.is-leaving { opacity: 0; pointer-events: none; }
+.street-stage { width: min(100vw, 200vh); aspect-ratio: 2 / 1; }
+@media (max-aspect-ratio: 4/3) { .street-stage { width: 100%; height: min(100%, 95vw); aspect-ratio: auto; } }
+.street-svg {
+  width: 100%; height: 100%; display: block;
+  image-rendering: pixelated; shape-rendering: crispEdges;
+  transition: transform .4s cubic-bezier(.6, 0, .85, .35);
+}
+.street-intro.is-entering .street-svg { transform: scale(6); }
+.street-svg .hot { cursor: pointer; outline: none; }
+.street-svg .hot .outline { opacity: 0; transition: opacity .12s; }
+.street-svg .hot .outline rect { animation: ants .6s linear infinite; }
+@keyframes ants { to { stroke-dashoffset: -10; } }
+.street-svg .hot:hover .outline, .street-svg .hot:focus-visible .outline { opacity: 1; }
+.street-svg .walker.walking .outline, .street-svg .walker.go-in .outline { opacity: 0 !important; }
+.street-svg .walker.walking .leg-l { animation: legs .16s steps(1) infinite; }
+.street-svg .walker.walking .leg-r { animation: legs .16s steps(1) infinite reverse; }
+@keyframes legs { 50% { transform: translateY(-2px); } }
+.street-svg .walker.go-in .walker-body { opacity: 0; transition: opacity .15s; }
+@media (prefers-reduced-motion: reduce) { .street-svg, .street-svg * { animation: none !important; transition: none !important; } }
+
+/* ---------- a few candy stickers (deco.js), only in empty space ---------- */
+.deco-layer { position: absolute; inset: 0; pointer-events: none; z-index: 20; }
+.deco-layer[hidden] { display: none; }
+.deco { position: absolute; height: auto; transform: rotate(var(--rot, 0deg)); }
+
+/* ---------- title card: bubbly logo + pixel text (the look from the earlier version) ---------- */
+html body header h1.astra-title {
+  font-family: "Mochiy Pop One", sans-serif !important;
+  font-size: 32px !important; font-weight: 400 !important; line-height: 1.05 !important;
+  letter-spacing: .02em !important;
+  color: #ff6fae !important;
+  -webkit-text-stroke: 4px #fff; paint-order: stroke fill;
+  text-shadow: 3px 3px 0 #ffd23f, 4px 5px 0 rgba(226, 88, 143, .5) !important;
+  transform: none !important;
+  margin: 2px 0 4px !important;
+}
+html body header h1.astra-title .title-note {
+  font-family: "Fusion Pixel 12px Proportional SC", sans-serif !important;
+  font-size: 13px !important; font-weight: 400 !important;
+  -webkit-text-stroke: 0; color: #3f86d6 !important; text-shadow: none !important;
+}
+html body header .header-copy :is(.eyebrow, .lead, .lead *) {
+  font-family: "Fusion Pixel 12px Proportional SC", sans-serif !important;
+}
+html body header .header-copy .lead { font-size: 12px !important; line-height: 1.45 !important; }
+html body header .header-copy .eyebrow { font-size: 13px !important; color: #e2588f !important; }
+html body header .header-copy { top: 10px !important; padding-top: 6px !important; padding-bottom: 6px !important; }
+html body header .header-copy .lead { line-height: 1.32 !important; margin-top: 4px !important; padding-top: 3px !important; padding-bottom: 3px !important; }
+html body header h1.astra-title { margin: 0 0 2px !important; }
+
+/* ---------- side rails: a bit bigger, one size for everything ---------- */
+html body .outside-notes { font-size: 12px !important; line-height: 1.45 !important; }
+html body .outside-notes :is(p, a, span, small, li) { font-size: 12px !important; }
+html body .side-text h2 { font-size: 12px !important; line-height: 17px !important; }
+html body .side-noise, html body .side-noise a { font: 12px/1.45 Tahoma, Verdana, sans-serif !important; }
+html body .side-noise a { color: inherit !important; text-decoration: none; }
+html body .side-noise a:hover { color: #df327e !important; text-decoration: underline; }
+
+/* ---------- "about this web": top-right corner of the 3D friends ---------- */
+@media (min-width: 761px) {
+  html body header .readme-tag {
+    position: absolute !important; left: 592px !important; top: 10px !important; right: auto !important; bottom: auto !important;
+    z-index: 9 !important; width: auto !important; height: auto !important; min-height: 0 !important;
+    margin: 0 !important; padding: 0 !important;
+    font: 13px/1.3 Verdana, Tahoma, sans-serif !important; color: #b34f7c !important;
+    background: none !important; border: 0 !important; box-shadow: none !important; transform: none !important;
+    text-decoration: underline !important; text-underline-offset: 2px; cursor: pointer;
+    text-shadow: 0 0 3px #fff, 0 0 2px #fff;
+  }
+  html body header .readme-tag:hover { color: #e2588f !important; }
+}
+
+/* 最新动态 + 最新旅游攻略: same compact pixel text; the boxes keep the original style */
+html body :is(.updates-block .feed, .updates-block .feed *, .travel-block .card, .travel-block .card *) {
+  font-family: "Fusion Pixel 12px Proportional SC", sans-serif !important; letter-spacing: 0 !important;
+}
+html body .updates-block .feed :is(p, span, a, small, b, strong, div, time) { font-size: 13px !important; line-height: 1.55 !important; }
+html body .updates-block .home-post-meta { color: #a07093 !important; }
+html body .updates-block .home-post-text { display: -webkit-box !important; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden !important; }
+html body .site-alien { top: 656px !important; bottom: auto !important; }
+
+/* travel form: the two free-text fields look like the old selects */
+html body #linkForm :is(#city, #topic) { width: 100%; box-sizing: border-box; min-width: 0; }
+
+/* ---------- right column sits higher; raccoon follows it ---------- */
+html body .outside-right { padding-top: 62px !important; }
+html body .site-alien { top: 596px !important; }
+
+/* =========================================================
+   DIARY: posts line up with the composer, text sizes that fit together
+   ========================================================= */
+html body #feedPanel :is(#postForm, #feed > .post) {
+  box-sizing: border-box !important;
+  width: calc(100% - 24px) !important; max-width: none !important;
+  margin-left: 7px !important; margin-right: 0 !important;
+}
+html body #feed > .post { margin-top: 0 !important; margin-bottom: 12px !important; padding: 8px 12px 10px !important; }
+html body #feed .post-head { padding: 0 0 4px !important; font-size: 11px !important; line-height: 1.4 !important; display: flex !important; justify-content: space-between; }
+html body #feed .post-head strong { font-size: 12px !important; }
+html body #feed .post-text { margin: 2px 0 0 !important; font-size: 14px !important; line-height: 1.7 !important; }
+html body #feed .photos { margin: 8px 0 0 !important; }
+html body #feed .post-comments { margin: 8px 0 0 !important; padding-top: 6px !important; font-size: 13px !important; }
+html body #feed .comments-title { font-size: 12px !important; line-height: 1.5 !important; margin-bottom: 2px !important; }
+html body #feed .post-comment, html body #feed .post-comment * { font-size: 13px !important; line-height: 1.55 !important; }
+html body #feed .post-comment { padding: 4px 0 !important; }
+html body #feed .comment-form { margin-top: 6px !important; padding-top: 6px !important; display: flex !important; gap: 6px; align-items: stretch; }
+html body #feed .comment-form :is(input, textarea, button) { font-size: 13px !important; line-height: 1.4 !important; min-height: 28px; box-sizing: border-box; }
+html body #feed .comment-form .comment-name { flex: 0 0 140px; width: auto !important; }
+html body #feed .comment-form .comment-text { flex: 1 1 auto; width: auto !important; }
+html body #feed .comment-form button { flex: 0 0 auto; padding: 0 12px !important; }
+html body #feed .comments-more { font-size: 12px !important; }
+html body #diaryMore { font-size: 12px !important; padding: 4px 14px !important; height: auto !important; }
+
+/* DIARY: posts scroll inside their own window, so the side columns stay beside them */
+@media (min-width: 761px) {
+  html body #feedPanel #feed {
+    max-height: clamp(420px, calc(100vh - 150px), 720px);
+    overflow-y: auto !important; overscroll-behavior: contain;
+    padding: 2px 0 2px !important;
+    scrollbar-width: thin; scrollbar-color: #e291b5 #ffe5f0;
+  }
+  html body #feedPanel #feed > * { flex-shrink: 0 !important; }
+  html body #feedPanel #diaryMore { margin-top: 8px !important; }
+}
+
+/* RANDOM MEMORY: "next random → ???" opens a one-line form */
+html body .random-memory-box .rm-line { display: block; }
+html body .random-memory-box .rm-trigger { cursor: pointer; }
+html body .random-memory-box .rm-trigger:hover { color: #df327e !important; text-decoration: underline; }
+html body .random-memory-box .rm-form { display: flex; gap: 4px; margin-top: 4px; }
+html body .random-memory-box .rm-form[hidden] { display: none; }
+html body .random-memory-box .rm-form input { flex: 1 1 auto; min-width: 0; font-size: 12px !important; padding: 2px 4px; border: 1px solid #e3a6c2; background: #fff; }
+html body .random-memory-box .rm-form button { flex: 0 0 auto; font-size: 12px !important; padding: 0 8px; border: 1px solid #e3a6c2; background: #fff0f6; color: #b34f7c; cursor: pointer; }
+html body .random-memory-box .rm-trigger[hidden] { display: none !important; }
+html body .random-memory-box .rm-form :is(input, button) { height: 22px !important; min-height: 0 !important; line-height: 20px !important; box-sizing: border-box; margin: 0 !important; }
+
+/* footer line: a bit bigger */
+html body .site-footer { font-size: 14px !important; line-height: 1.6 !important; }

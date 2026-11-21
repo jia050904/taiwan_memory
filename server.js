@@ -475,6 +475,8 @@ function serveFile(file, req, res) {
     ".png": "image/png",
     ".webp": "image/webp",
     ".gif": "image/gif",
+    ".svg": "image/svg+xml",
+    ".woff2": "font/woff2",
     ".mp3": "audio/mpeg"
   }[ext] || "application/octet-stream";
 
