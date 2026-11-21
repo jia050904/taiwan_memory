@@ -208,3 +208,82 @@ html body .random-memory-box .rm-form :is(input, button) { height: 22px !importa
 
 /* footer line: a bit bigger */
 html body .site-footer { font-size: 14px !important; line-height: 1.6 !important; }
+
+/* =========================================================
+   PHONES (≤ 760px)
+   ========================================================= */
+@media (max-width: 760px) {
+  /* street: show enough of the picture that the girl and the shop are both in view */
+  .street-stage { width: 100% !important; height: min(100%, 74vw) !important; aspect-ratio: auto !important; }
+
+  /* header: title card on top, then dog · friends · room on one row */
+  html body header { height: 318px !important; }
+  html body header .header-copy { left: 8px !important; right: 8px !important; top: 8px !important; width: auto !important; transform: none !important; }
+  html body header h1.astra-title { font-size: 26px !important; -webkit-text-stroke-width: 3px; }
+  html body header .new-stamp { left: auto !important; right: 14px !important; top: 2px !important; }
+  html body header :is(.sticker-castle, .tiny-browser-crop) { display: none !important; }
+  html body header .sticker-dog { left: 4px !important; top: auto !important; bottom: 26px !important; width: auto !important; height: 88px !important; }
+  html body header .header-art { left: 64px !important; top: 176px !important; width: 180px !important; height: 116px !important; }
+  html body header .header-room-sticker { left: auto !important; right: -4px !important; top: 172px !important; width: 124px !important; height: 124px !important; }
+  html body header .readme-tag {
+    position: absolute !important; left: auto !important; right: 10px !important; top: auto !important; bottom: 6px !important;
+    z-index: 9 !important; margin: 0 !important; padding: 1px 6px !important; width: auto !important; height: auto !important;
+    font: 12px/1.3 Verdana, Tahoma, sans-serif !important; color: #b34f7c !important;
+    background: rgba(255, 255, 255, .85) !important; border: 0 !important; box-shadow: none !important; transform: none !important;
+    text-decoration: underline !important;
+  }
+
+  /* nav: all five tabs visible, wrapping if needed */
+  html body nav.tabs { display: flex !important; flex-wrap: wrap !important; gap: 4px !important; width: auto !important; height: auto !important; }
+  html body nav.tabs .tab { padding: 3px 8px !important; font-size: 11px !important; margin: 0 !important; }
+
+  /* one column: the page content first, then the about box, then memo */
+  html body .oldweb-layout { display: flex !important; flex-direction: column !important; gap: 10px !important; }
+  html body .oldweb-layout > * { width: 100% !important; max-width: none !important; flex: none !important; margin: 0 !important; transform: none !important; }
+  html body .oldweb-layout .main-column { order: 1; }
+  html body .oldweb-layout .left-rail { order: 2; display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px !important; align-items: start; }
+  html body .oldweb-layout .left-rail .welcome-box { grid-column: 1 / -1; }
+  html body .oldweb-layout .left-rail :is(.meeting-quote, .avatar-sticker) { width: 100% !important; margin: 0 !important; transform: none !important; }
+  html body .oldweb-layout .right-rail { order: 3; }
+  html body .right-rail .memo-meme { max-width: 140px; margin: 0 auto !important; }
+  html body #homePanel.active :is(#bgmPlayer, .guestbook-box) { margin-left: auto !important; margin-right: auto !important; }
+
+  /* side-rail notes (SITE INFO, mail me, status…) come back at the bottom as plain text */
+  html body .page-shell { display: flex !important; flex-direction: column !important; width: 100% !important; max-width: 100% !important; }
+  html body .page-shell > .site { order: 1; }
+  html body .page-shell > .outside-left { order: 2; }
+  html body .page-shell > .outside-right { order: 3; }
+  html body .outside-notes { display: block !important; padding: 10px 14px 4px !important; }
+  html body .outside-notes .side-gif { display: none !important; }
+  html body .site-alien { display: none !important; }
+}
+@media (max-width: 760px) {
+  html body nav.tabs { flex-wrap: nowrap !important; }
+  html body nav.tabs .tab { flex: 1 1 0 !important; min-width: 0 !important; padding: 3px 2px !important; font-size: 11px !important; text-align: center; white-space: nowrap; }
+  /* home on phones: player, guestbook, then the rest */
+  html body #homePanel.active { display: flex !important; flex-direction: column !important; gap: 10px !important; }
+  html body #homePanel.active > .home-stack { display: contents !important; }
+  html body #homePanel.active > .home-stack > * { width: auto; margin-top: 0 !important; margin-bottom: 0 !important; }
+  html body #homePanel.active #bgmPlayer { order: 1; }
+  html body #homePanel.active .guestbook-box { order: 2; }
+  html body #homePanel.active .updates-block { order: 3; }
+  html body #homePanel.active .travel-block { order: 4; }
+  html body #homePanel.active .random-memory-box { order: 5; }
+  html body #homePanel.active .mini-archive-box { order: 6; }
+}
+@media (max-width: 760px) {
+  html body .right-rail .memo-meme { width: 140px !important; height: auto !important; max-width: 140px !important; display: block !important; }
+  html body :is(.random-memory-box, .mini-archive-box) :is(b, span, a, small, input, button) { font-size: 12px !important; line-height: 1.55 !important; }
+}
+@media (max-width: 760px) {
+  html body #feed .comment-form .comment-name { flex: 0 0 88px !important; }
+  html body #feed .comment-form button { white-space: nowrap; }
+}
+@media (max-width: 760px) {
+  /* GUIDES on phones: list of docs on top, the editor full width underneath */
+  html body .guide-layout { display: flex !important; flex-direction: column !important; gap: 8px !important; height: auto !important; min-height: 0 !important; }
+  html body .guide-layout > .guide-list { width: 100% !important; max-width: none !important; height: auto !important; max-height: 150px !important; overflow-y: auto !important; }
+  html body .guide-layout > .guide-workspace { width: 100% !important; max-width: none !important; min-width: 0 !important; height: auto !important; }
+  html body .guide-editor { height: 62vh !important; min-height: 320px !important; max-height: none !important; }
+  html body .guide-toolbar { flex-wrap: wrap !important; }
+}
